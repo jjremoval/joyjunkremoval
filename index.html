@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>Joy Junk Removal — Fast, Friendly & Affordable</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { color-scheme: light; }
+
+    :root {
+      --yellow: #FFD100;
+      --yellow-dark: #e6bc00;
+      --black: #111111;
+      --white: #ffffff;
+      --gray: #f5f5f5;
+      --text-muted: #555;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--black);
+      background: var(--white);
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 40px;
+    }
+
+    nav .logo img {
+      height: 64px;
+      width: auto;
+    }
+
+    nav .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    nav .nav-links a {
+      color: var(--black);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    nav .nav-links a:hover { color: var(--yellow-dark); }
+
+    nav .nav-cta {
+      background: var(--yellow);
+      color: var(--black);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 11px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    nav .nav-cta:hover {
+      background: var(--yellow-dark);
+      transform: translateY(-1px);
+    }
+
+    /* ── HERO + FORM COMBINED ── */
+    .hero-form {
+      background: var(--black);
+      color: var(--white);
+      padding: 32px 48px 36px;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 52px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: start;
+      min-height: 700px;
+    }
+
+    /* Left: hero copy */
+    .hero-content {
+      padding-top: 4px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--yellow);
+      color: var(--black);
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2rem, 3.8vw, 3rem);
+      font-weight: 900;
+      line-height: 1.08;
+      margin-bottom: 14px;
+    }
+
+    .hero-content h1 span { color: var(--yellow); }
+
+    .hero-content .sub {
+      font-size: 0.92rem;
+      color: #ccc;
+      line-height: 1.7;
+      margin-bottom: 18px;
+      max-width: 440px;
+    }
+
+    /* Phone CTA */
+    .call-cta {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      background: var(--yellow);
+      border: 2px solid var(--yellow);
+      color: var(--black);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 10px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+      margin-bottom: 22px;
+    }
+
+    .call-cta:hover {
+      background: var(--yellow-dark);
+      border-color: var(--yellow-dark);
+    }
+
+    /* How It Works steps */
+    .hero-contact-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      flex: 1;
+    }
+
+    .hcs-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 0.95rem;
+      color: #bbb;
+      flex: 1;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .hcs-item:last-child { border-bottom: none; }
+
+    .hcs-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--yellow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      flex-shrink: 0;
+      color: var(--black);
+    }
+
+    .hcs-item strong {
+      display: block;
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .hcs-item span {
+      display: block;
+      font-size: 0.82rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    /* Right: form panel */
+    .form-panel {
+      background: var(--black);
+      border-radius: 16px;
+      padding: 26px 30px 22px;
+      box-shadow: 0 16px 56px rgba(0,0,0,0.35);
+      border: 2px solid var(--yellow);
+      color: var(--white);
+      height: 680px;
+      overflow: hidden;
+    }
+
+    .form-panel h3 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 16px;
+      color: var(--yellow);
+      text-align: center;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #444;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1.5px solid #ddd;
+      border-radius: 7px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      color: var(--black);
+      background: var(--white);
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px rgba(255,209,0,0.18);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 62px;
+    }
+
+    .form-submit {
+      width: 100%;
+      background: var(--yellow);
+      color: var(--black);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 2px;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .form-submit:hover {
+      background: var(--yellow-dark);
+      transform: translateY(-2px);
+    }
+
+    .form-note {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #aaa;
+      margin-top: 8px;
+    }
+
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      background: var(--yellow);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--black);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      color: #aaa;
+      padding: 48px 40px 28px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid #222;
+    }
+
+    .footer-brand img {
+      height: 52px;
+      margin-bottom: 12px;
+    }
+
+    .footer-brand p {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: #888;
+    }
+
+    .footer-col h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+
+    .footer-col ul { list-style: none; }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+      font-size: 0.875rem;
+    }
+
+    .footer-col ul li a {
+      color: #888;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul li a:hover { color: var(--yellow); }
+
+    .footer-contact-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      font-size: 0.875rem;
+    }
+
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 24px auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: #555;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* outer wrapper forces black bg edge-to-edge */
+    .hero-form-wrapper {
+      background: var(--black);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero-form {
+        grid-template-columns: 1fr;
+        padding: 36px 24px 48px;
+        gap: 36px;
+      }
+      nav { padding: 8px 20px; }
+      nav .nav-links { display: none; }
+      .trust-bar { gap: 20px; padding: 16px 24px; }
+      footer { padding: 40px 24px 24px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+      nav .logo img { height: 64px; }
+      .form-panel { height: auto; overflow: visible; }
+      .form-panel > div { height: 650px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <a class="logo" href="index.html">
+      <img src="brand_assets/joyjunklogo_cropped.png" alt="Joy Junk Removal" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <a class="nav-cta" href="index.html#contact">🚛 Get a Free Quote</a>
+  </nav>
+
+  <!-- ── HERO + FORM (combined, first thing you see) ── -->
+  <div class="hero-form-wrapper" id="contact">
+    <div class="hero-form">
+
+      <!-- LEFT: headline + info -->
+      <div class="hero-content">
+<h1>Junk Gone. <span>Joy Found.</span> 🎉</h1>
+        <p class="sub">We haul it all — fast, friendly, and at a price you'll love.</p>
+        <a class="call-cta" href="tel:+18054245727">📞 Call Us Now — (805) 424-5727</a>
+        <p style="font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:14px;">How It Works 👇</p>
+        <div class="hero-contact-strip">
+          <div class="hcs-item">
+            <div class="hcs-icon">1</div>
+            <div><a href="#quote-form" style="color:#fff;text-decoration:none;"><strong>📋 Book Online, Text, or Call</strong></a><span>Fill out the form to the right →</span></div>
+          </div>
+          <div class="hcs-item">
+            <div class="hcs-icon">2</div>
+            <div><strong>🚛 We Show Up & Quote</strong><span>On-time arrival, upfront price — no surprises</span></div>
+          </div>
+          <div class="hcs-item">
+            <div class="hcs-icon">3</div>
+            <div><strong>✅ Junk Gone. Done!</strong><span>You approve, we haul — it's that easy</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: form -->
+      <div class="form-panel" id="quote-form">
+        <h3>📝 Request a Free Quote 🎯</h3>
+        <div style="overflow: hidden; height: 590px; border-radius: 8px; background: #fff; contain: strict; position: relative;">
+          <iframe id="crm-form" src="https://app.autopilotapp.io/contact-us/joy-junk-removal-llc/eb151a7b-e674-4153-8b1a-f1a80de8a900" width="100%" frameborder="0" scrolling="no" style="position: absolute; top: -290px; left: 0; height: 2200px; width: 100%; opacity: 0; transition: opacity 0.4s ease;" onload="setTimeout(() => this.style.opacity=1, 1000)"></iframe>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TRUST BAR ── -->
+  <div class="trust-bar">
+    <div class="trust-item"><span>🏠</span> Residential & Commercial</div>
+    <div class="trust-item"><span>💸</span> Upfront Pricing — No Hidden Fees</div>
+    <div class="trust-item"><span>🙌</span> Licensed & Insured</div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="brand_assets/joyjunklogo2_cropped.png" alt="Joy Junk Removal" />
+        <p>Your local, friendly junk removal team. Fast pickups, fair prices, and a smile every time. 😊</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact-item"><span>📞</span><span>(805) 424-5727</span></div>
+        <div class="footer-contact-item"><span>✉️</span><span>hello@joyjunkremoval.com</span></div>
+        <div class="footer-contact-item"><span>📍</span><span>San Luis Obispo County</span></div>
+        <div class="footer-contact-item"><span>🕐</span><span>Mon–Sat: 7AM – 7PM</span></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Joy Junk Removal LLC. All rights reserved.</span>
+      <span>Built with ❤️ for your local community.</span>
+    </div>
+  </footer>
+
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.form-submit');
+      btn.textContent = '✅ Request Sent! We\'ll be in touch soon.';
+      btn.style.background = '#22c55e';
+      btn.style.color = '#fff';
+      btn.disabled = true;
+    }
+  </script>
+
+</body>
+</html>

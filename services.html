@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>Services — Joy Junk Removal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --yellow: #FFD100; --yellow-dark: #e6bc00;
+      --black: #111111; --white: #ffffff;
+      --gray: #f5f5f5; --text-muted: #555;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Poppins', sans-serif; color: var(--black); background: var(--white); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid #e8e8e8;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 40px;
+    }
+    nav .logo img { height: 64px; width: auto; }
+    nav .nav-links { display: flex; gap: 32px; list-style: none; }
+    nav .nav-links a { color: var(--black); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: color 0.2s; }
+    nav .nav-links a:hover, nav .nav-links a.active { color: var(--yellow-dark); }
+    nav .nav-cta {
+      background: var(--yellow); color: var(--black); font-weight: 700;
+      font-size: 0.9rem; padding: 11px 24px; border-radius: 6px;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+    }
+    nav .nav-cta:hover { background: var(--yellow-dark); transform: translateY(-1px); }
+
+.services-main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      padding: 16px 40px 16px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      align-items: start;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .services-grid-wrap {
+      overflow-y: auto;
+      height: 100%;
+      padding-right: 4px;
+    }
+
+    .services-grid-wrap::-webkit-scrollbar { width: 4px; }
+    .services-grid-wrap::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+    .services-left {
+      padding-top: 0;
+    }
+
+    .section-label {
+      display: inline-block; background: var(--yellow); color: var(--black);
+      font-weight: 700; font-size: 0.72rem; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+    }
+
+    .services-left h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 900; line-height: 1.1; margin-bottom: 16px;
+    }
+
+    .services-left h2 span { color: var(--yellow-dark); }
+
+    .services-left p {
+      font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 16px;
+    }
+
+    .trust-list {
+      list-style: none; margin-bottom: 20px; display: flex; flex-direction: column; gap: 7px;
+    }
+    .trust-list li {
+      font-size: 0.8rem; font-weight: 600; color: var(--black);
+      display: flex; align-items: center; gap: 7px;
+    }
+
+    .services-left .cta-link {
+      display: inline-block; background: var(--yellow); color: var(--black);
+      font-weight: 700; font-size: 0.88rem; padding: 10px 20px;
+      border-radius: 7px; text-decoration: none; transition: background 0.2s;
+    }
+    .services-left .cta-link:hover { background: var(--yellow-dark); }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .service-card {
+      background: var(--gray); border-radius: 10px; padding: 16px 14px;
+      text-align: center; border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .service-card:hover {
+      border-color: var(--yellow); transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .service-card .icon { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+    .service-card h3 { font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; }
+    .service-card p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    footer {
+      background: var(--black); color: #aaa; padding: 20px 40px 14px; flex-shrink: 0;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr auto;
+      gap: 32px; padding-bottom: 14px; border-bottom: 1px solid #222;
+      align-items: center;
+    }
+    .footer-brand img { height: 44px; margin-bottom: 6px; display: block; }
+    .footer-brand p { font-size: 0.78rem; line-height: 1.6; color: #888; }
+    .footer-col h4 { font-size: 0.82rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 5px; font-size: 0.78rem; }
+    .footer-col ul li a { color: #888; text-decoration: none; transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--yellow); }
+    .footer-contact-item { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; font-size: 0.78rem; }
+    .btn-cta {
+      background: var(--yellow); color: var(--black); font-family: 'Poppins', sans-serif;
+      font-weight: 700; font-size: 0.92rem; padding: 11px 22px; border-radius: 7px;
+      text-decoration: none; white-space: nowrap; transition: background 0.2s, transform 0.15s;
+    }
+    .btn-cta:hover { background: var(--yellow-dark); transform: translateY(-1px); }
+    .footer-bottom {
+      max-width: 1100px; margin: 10px auto 0;
+      display: flex; justify-content: space-between;
+      font-size: 0.72rem; color: #555;
+    }
+
+    @media (max-width: 900px) {
+      .services-main { grid-template-columns: 1fr; padding: 24px; }
+      .services-left { position: static; }
+    }
+    @media (max-width: 600px) {
+      nav { padding: 10px 20px; }
+      nav .nav-links { display: none; }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="index.html"><img src="brand_assets/joyjunklogo_cropped.png" alt="Joy Junk Removal" /></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html" class="active">Services</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <a class="nav-cta" href="index.html#contact">🚛 Get a Free Quote</a>
+  </nav>
+
+  <div class="services-main">
+
+    <!-- LEFT: title -->
+    <div class="services-left">
+      <div class="section-label">What We Haul</div>
+      <h2>Our <span>Services</span> 🚚</h2>
+      <p>From a single piece of furniture to a full property cleanout — we haul it all, fast and affordably.</p>
+      <ul class="trust-list">
+        <li>🏠 Residential & Commercial</li>
+        <li>💸 Upfront Pricing — No Hidden Fees</li>
+        <li>🙌 Licensed & Insured</li>
+      </ul>
+      <a class="cta-link" href="tel:+18054245727">📞 Call Us Now — (805) 424-5727</a>
+    </div>
+
+    <!-- RIGHT: compact 3×3 grid -->
+    <div class="services-grid-wrap">
+    <div class="services-grid">
+      <div class="service-card">
+        <span class="icon">🛋️</span>
+        <h3>Furniture Removal</h3>
+        <p>Sofas, mattresses, tables, dressers — we lift it all.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🏠</span>
+        <h3>Home Cleanouts</h3>
+        <p>Garage, attic, basement — left broom-clean.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🏗️</span>
+        <h3>Construction Debris</h3>
+        <p>Drywall, lumber, tile, debris removed fast.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🖥️</span>
+        <h3>Electronics & Appliances</h3>
+        <p>TVs, fridges, washers — properly recycled.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🌿</span>
+        <h3>Yard Waste</h3>
+        <p>Branches, brush, dirt, mulch removed fast.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🏢</span>
+        <h3>Office Cleanouts</h3>
+        <p>Desks, cubicles, filing cabinets and more.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🏚️</span>
+        <h3>Hoarder Cleanouts</h3>
+        <p>Compassionate, thorough cleanouts for extreme situations.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">🎒</span>
+        <h3>Estate Cleanouts</h3>
+        <p>Respectful, thorough cleanouts handled with care.</p>
+      </div>
+      <div class="service-card">
+        <span class="icon">📦</span>
+        <h3>Storage Unit Cleanouts</h3>
+        <p>Clear out units and stop paying monthly fees.</p>
+      </div>
+    </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="brand_assets/joyjunklogo2_cropped.png" alt="Joy Junk Removal" />
+        <p>Your local, friendly junk removal team. Fast pickups, fair prices, and a smile every time. 😊</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact-item"><span>📞</span><span>(805) 424-5727</span></div>
+        <div class="footer-contact-item"><span>✉️</span><span>hello@joyjunkremoval.com</span></div>
+        <div class="footer-contact-item"><span>📍</span><span>San Luis Obispo County</span></div>
+        <div class="footer-contact-item"><span>🕐</span><span>Mon–Sat: 7AM – 7PM</span></div>
+      </div>
+      <a class="btn-cta" href="index.html#contact">🚛 Request Quote Now</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Joy Junk Removal LLC. All rights reserved.</span>
+      <span>Built with ❤️ for your local community.</span>
+    </div>
+  </footer>
+
+</body>
+</html>
