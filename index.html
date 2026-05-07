@@ -40,8 +40,7 @@
             <div class="hcs-icon">1</div>
             <div>
               <a href="#quote-form" style="color:#fff;text-decoration:none;"><strong>📋 Book Online, Text, or Call</strong></a>
-              <span class="hcs-desktop-text">Fill out the form to the right →</span>
-              <span class="hcs-mobile-text">Fill out the form below</span>
+              <span>Fill out the free quote form →</span>
             </div>
           </div>
           <div class="hcs-item">
@@ -59,7 +58,26 @@
       <!-- RIGHT: form -->
       <div class="form-panel" id="quote-form">
         <h3>📝 Request a Free Quote 🎯</h3>
-        <iframe id="crm-form" class="crm-iframe" src="https://app.autopilotapp.io/contact-us/joy-junk-removal/eb151a7b-e674-4153-8b1a-f1a80de8a900" frameborder="0" scrolling="no"></iframe>
+        <form id="contact-form" onsubmit="submitForm(event)">
+          <div class="cf-group">
+            <label>Name *</label>
+            <input type="text" id="cf-name" placeholder="Enter your name" required />
+          </div>
+          <div class="cf-group">
+            <label>Email *</label>
+            <input type="email" id="cf-email" placeholder="Enter your email" required />
+          </div>
+          <div class="cf-group">
+            <label>Phone Number *</label>
+            <input type="tel" id="cf-phone" placeholder="Enter your phone number" required />
+          </div>
+          <div class="cf-group">
+            <label>Message *</label>
+            <textarea id="cf-message" placeholder="Tell us what you need hauled..." required></textarea>
+          </div>
+          <button type="submit" class="cf-submit" id="cf-btn">Submit</button>
+          <p class="cf-note" id="cf-status"></p>
+        </form>
       </div>
 
     </div>

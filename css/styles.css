@@ -393,12 +393,66 @@ footer {
 /* outer wrapper forces black bg edge-to-edge */
 .hero-form-wrapper { background: var(--black); }
 
+/* ── CUSTOM CONTACT FORM ── */
+#contact-form { display: flex; flex-direction: column; gap: 14px; }
+
+.cf-group { display: flex; flex-direction: column; gap: 5px; }
+
+.cf-group label {
+  font-size: 0.78rem; font-weight: 600; color: #ccc;
+}
+
+.cf-group input,
+.cf-group textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid #333; border-radius: 8px;
+  font-family: 'Poppins', sans-serif; font-size: 0.88rem;
+  color: var(--black); background: var(--white);
+  transition: border-color 0.2s; outline: none;
+}
+
+.cf-group input:focus,
+.cf-group textarea:focus {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 3px rgba(255,209,0,0.2);
+}
+
+.cf-group textarea { min-height: 90px; resize: vertical; }
+
+.cf-submit {
+  width: 100%; background: var(--yellow); color: var(--black);
+  font-family: 'Poppins', sans-serif; font-weight: 700;
+  font-size: 1rem; padding: 13px; border: none;
+  border-radius: 8px; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.cf-submit:hover { background: var(--yellow-dark); transform: translateY(-2px); }
+.cf-submit:disabled { background: #888; cursor: not-allowed; transform: none; }
+
+.cf-note {
+  text-align: center; font-size: 0.82rem;
+  color: #aaa; margin-top: 4px; min-height: 20px;
+}
+
 /* ── FORM IFRAME ── */
+.crm-wrap {
+  overflow: hidden;
+  height: 580px;
+  position: relative;
+  border-radius: 8px;
+  background: #fff;
+}
+
 .crm-iframe {
-  width: 100%; height: 630px;
-  border: none; display: block;
+  position: absolute;
+  top: -390px;
+  left: 0;
+  width: 100%;
+  height: 2200px;
+  border: none;
   opacity: 0;
-  animation: showForm 0.5s ease 2s forwards;
+  animation: showForm 0.5s ease 2.5s forwards;
 }
 
 @keyframes showForm {
@@ -410,6 +464,8 @@ footer {
 .hcs-mobile-text { display: none; }
 
 @media (max-width: 900px) {
+  .crm-iframe { top: -390px; width: 600px !important; }
+  .crm-wrap { height: 580px; }
   .hcs-desktop-text { display: none; }
   .hcs-mobile-text { display: inline; }
   .mobile-form-cta {
