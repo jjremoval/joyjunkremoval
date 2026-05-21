@@ -17,7 +17,7 @@ async function submitForm(e) {
   };
 
   try {
-    const res = await fetch('/submit.php', {
+    const res = await fetch('https://joyjunk-form.mikedurighello.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
