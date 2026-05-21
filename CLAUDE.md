@@ -1,7 +1,7 @@
 # Joy Junk Removal Website
 
 Business website for Joy Junk Removal at joyjunkremoval.com.
-Hosted on a remote server, deployed via FileZilla (FTP).
+Hosted on GitHub Pages (thicktreasure365/joyjunkremoval), auto-deploys on push to main.
 
 ## File structure
 
@@ -24,8 +24,7 @@ Build a professional, modern lead-generation landing page for Joy Junk Removal. 
 
 ## Deployment
 
-Files are uploaded manually via FileZilla to the live server.
-After any change: edit locally → commit to git → upload via FileZilla.
+After any change: edit locally → commit → push to main → GitHub Pages deploys automatically.
 
 ## Rules
 
