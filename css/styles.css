@@ -393,6 +393,8 @@ footer {
 /* outer wrapper forces black bg edge-to-edge */
 .hero-form-wrapper { background: var(--black); }
 
+#quote-form { scroll-margin-top: 88px; }
+
 /* ── CUSTOM CONTACT FORM ── */
 #contact-form { display: flex; flex-direction: column; gap: 14px; }
 
