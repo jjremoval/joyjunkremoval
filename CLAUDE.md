@@ -16,6 +16,7 @@ Hosted on a remote server, deployed via FileZilla (FTP).
 | `manifest.json` | PWA manifest |
 | `brand_assets/` | Logo, brand guidelines, inspiration screenshots |
 | `CHANGELOG.md` | Log all major changes here |
+| `.githooks/commit-msg` | Auto-updates CHANGELOG.md on every commit |
 
 ## Goal
 
@@ -36,6 +37,14 @@ After any change: edit locally → commit to git → upload via FileZilla.
 - Always check `brand_assets/brand_guidelines.md` before making visual changes
 - Always invoke the frontend-design skill before writing any frontend code, every session, no exceptions
 - Always develop and test on localhost first — do not push to GitHub unless explicitly asked
+
+## First-time setup (after cloning)
+
+Run once to activate the git hooks:
+```
+git config core.hooksPath .githooks
+```
+This enables auto-updating of `CHANGELOG.md` on every commit.
 
 ## Git commit style
 
