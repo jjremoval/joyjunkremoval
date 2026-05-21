@@ -435,6 +435,10 @@ footer {
   color: #aaa; margin-top: 4px; min-height: 20px;
 }
 
+.cf-invalid { border-color: #f87171 !important; }
+.cf-invalid:focus { box-shadow: 0 0 0 3px rgba(248,113,113,0.2) !important; }
+.cf-field-error { font-size: 0.75rem; color: #f87171; margin-top: 2px; }
+
 /* ── FORM IFRAME ── */
 .crm-wrap {
   overflow: hidden;
