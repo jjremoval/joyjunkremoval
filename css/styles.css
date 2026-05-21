@@ -386,6 +386,7 @@ footer {
   background: var(--yellow); color: var(--black); font-family: 'Poppins', sans-serif;
   font-weight: 700; font-size: 0.92rem; padding: 11px 22px; border-radius: 7px;
   text-decoration: none; white-space: nowrap; transition: background 0.2s, transform 0.15s;
+  text-align: center; display: block;
 }
 
 .btn-cta:hover { background: var(--yellow-dark); transform: translateY(-1px); }
@@ -555,6 +556,7 @@ footer {
   nav { padding: 8px 20px; }
   nav .nav-links { display: none; }
   .nav-hamburger { display: flex; }
+  .nav-cta { font-size: 0.78rem; padding: 9px 10px; }
   .trust-bar { gap: 20px; padding: 16px 24px; }
   footer { padding: 40px 24px 24px; }
   .footer-inner { grid-template-columns: 1fr; gap: 28px; }
