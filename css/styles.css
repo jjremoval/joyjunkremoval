@@ -567,5 +567,5 @@ footer {
 @media (max-width: 480px) {
   .form-row { grid-template-columns: 1fr; }
   nav .logo img { height: 64px; }
-  nav { padding: 8px 16px 8px 20px; }
+  nav { padding: 8px 24px 8px 20px; }
 }

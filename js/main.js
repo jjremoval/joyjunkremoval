@@ -1,4 +1,4 @@
-window.addEventListener('load', function() { window.scrollTo(0, 0); });
+window.addEventListener('load', function() { if (!window.location.hash) window.scrollTo(0, 0); });
 
 (function() {
   const hamburger = document.getElementById('nav-hamburger');
