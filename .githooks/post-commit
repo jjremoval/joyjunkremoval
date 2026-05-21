@@ -1,0 +1,30 @@
+#!/bin/sh
+# Auto-update CHANGELOG.md by amending the just-created commit
+
+COMMIT_MSG=$(git log -1 --pretty=%B | head -1)
+DATE=$(date +%Y-%m-%d)
+
+# Skip merge commits
+case "$COMMIT_MSG" in
+  Merge*|merge*) exit 0 ;;
+esac
+
+# Skip if entry already exists — prevents amend loop
+ENTRY="- $DATE: $COMMIT_MSG"
+if grep -qF "$ENTRY" CHANGELOG.md 2>/dev/null; then
+  exit 0
+fi
+
+python3 -c "
+import sys
+msg, date = sys.argv[1], sys.argv[2]
+with open('CHANGELOG.md', 'r') as f:
+    content = f.read()
+new_entry = '- ' + date + ': ' + msg + '\n'
+content = content.replace('## [Unreleased]\n', '## [Unreleased]\n' + new_entry, 1)
+with open('CHANGELOG.md', 'w') as f:
+    f.write(content)
+" "$COMMIT_MSG" "$DATE"
+
+git add CHANGELOG.md
+git commit --amend --no-edit
