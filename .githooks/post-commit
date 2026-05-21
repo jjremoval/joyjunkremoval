@@ -1,4 +1,5 @@
 #!/bin/sh
+exit 0
 # Auto-update CHANGELOG.md by amending the just-created commit
 
 COMMIT_MSG=$(git log -1 --pretty=%B | head -1)
