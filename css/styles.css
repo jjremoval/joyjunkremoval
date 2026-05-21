@@ -16,6 +16,7 @@ body {
   font-family: 'Poppins', sans-serif;
   color: var(--black);
   background: var(--white);
+  overflow-x: hidden;
 }
 
 /* ── NAVBAR ── */
@@ -566,4 +567,5 @@ footer {
 @media (max-width: 480px) {
   .form-row { grid-template-columns: 1fr; }
   nav .logo img { height: 64px; }
+  nav { padding: 8px 16px 8px 20px; }
 }
