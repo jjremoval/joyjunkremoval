@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-05-20: Add Cloudflare Worker setup notes and githooks tracking
 - 2026-05-20: Wire contact form to Cloudflare Worker for Autopilot CRM integration
 
 ## [1.1.0] — 2026-05-20
