@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Local tooling / config
+.claude/
+
+# Temporary working files (previews, screenshots)
+temp_screenshots/
+
+# Internal strategy docs — keep private, do NOT publish to public site
+*.pdf
+
+# Node boilerplate (static site, no build step)
+package.json
+node_modules/
