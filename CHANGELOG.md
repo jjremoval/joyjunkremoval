@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-10: SEO Priority 2 — add LocalBusiness JSON-LD (service-area) to all 3 pages, FAQPage schema + visible FAQ accordion on home page, optimize title tags/meta descriptions with "San Luis Obispo County" keywords, add canonical + Open Graph tags; bump cache to v9
 - 2026-05-20: Wire contact form to Cloudflare Worker for Autopilot CRM integration
 - 2026-05-20: Add .githooks tracking and first-time setup docs
 - 2026-05-20: Bump service worker cache to v3
