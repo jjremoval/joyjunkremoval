@@ -13,3 +13,6 @@ temp_screenshots/
 # Node boilerplate (static site, no build step)
 package.json
 node_modules/
+
+# IndexNow key reference note (the public key file itself IS committed)
+.indexnow-key.txt
