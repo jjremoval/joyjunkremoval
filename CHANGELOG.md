@@ -3,6 +3,10 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-10: Make service-area hero/CTA buttons equal-sized and side-by-side (stack full-width on mobile); bump cache to v14
+- 2026-06-10: Add "Service Areas" dropdown to header nav (desktop hover + mobile expandable submenu) across all 7 pages, with active-state highlighting; bump cache to v13
+- 2026-06-10: Add customer reviews section (3 authentic Google reviews) to home page and all 4 service-area pages; bump cache to v12
+- 2026-06-10: Add 4 service-area pages (Paso Robles, San Luis Obispo, Atascadero, Arroyo Grande) with unique local content, Service + FAQ schema, internal links, and footer Service Areas column; update sitemap; bump cache to v11
 - 2026-06-10: Add sitemap.xml and robots.txt for search engine crawling/indexing
 - 2026-06-10: Reword pricing FAQ answer (text photos / call for upfront quote); bump cache to v10
 - 2026-06-10: SEO Priority 2 — add LocalBusiness JSON-LD (service-area) to all 3 pages, FAQPage schema + visible FAQ accordion on home page, optimize title tags/meta descriptions with "San Luis Obispo County" keywords, add canonical + Open Graph tags; bump cache to v9

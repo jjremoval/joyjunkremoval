@@ -26,6 +26,18 @@ window.addEventListener('load', function() { if (!window.location.hash) window.s
   });
 })();
 
+// Mobile "Service Areas" sub-menu toggle
+(function() {
+  const subToggle = document.getElementById('nav-mobile-sub-toggle');
+  const subMenu = document.getElementById('nav-mobile-sub-menu');
+  if (!subToggle || !subMenu) return;
+  subToggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    subToggle.classList.toggle('open');
+    subMenu.classList.toggle('open');
+  });
+})();
+
 function showFieldError(id, msg) {
   const input = document.getElementById(id);
   input.classList.add('cf-invalid');
