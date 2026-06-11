@@ -1,0 +1,66 @@
+name: SEO Monitor
+
+# Runs weekly in the cloud (no computer needed). Health-checks every page and
+# re-pings IndexNow. If any page is down, the job FAILS and GitHub emails you.
+# You can also run it on demand: Actions tab -> SEO Monitor -> "Run workflow".
+
+on:
+  schedule:
+    - cron: '13 15 * * 1'   # Mondays ~15:13 UTC (~8am Pacific)
+  workflow_dispatch: {}      # manual "Run workflow" button
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check all pages
+        run: |
+          urls=(
+            "https://joyjunkremoval.com/"
+            "https://joyjunkremoval.com/services.html"
+            "https://joyjunkremoval.com/about.html"
+            "https://joyjunkremoval.com/paso-robles-junk-removal.html"
+            "https://joyjunkremoval.com/san-luis-obispo-junk-removal.html"
+            "https://joyjunkremoval.com/atascadero-junk-removal.html"
+            "https://joyjunkremoval.com/arroyo-grande-junk-removal.html"
+            "https://joyjunkremoval.com/sitemap.xml"
+            "https://joyjunkremoval.com/robots.txt"
+            "https://joyjunkremoval.com/llms.txt"
+          )
+          fail=0
+          for u in "${urls[@]}"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$u")
+            if [ "$code" != "200" ]; then
+              echo "::error::DOWN ($code): $u"
+              fail=1
+            else
+              echo "OK (200): $u"
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo "::error::One or more pages are down — see above."
+            exit 1
+          fi
+          echo "All pages healthy ✅"
+
+      - name: Re-ping IndexNow (Bing / AI search)
+        if: success()
+        run: |
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d '{
+              "host": "joyjunkremoval.com",
+              "key": "17ebff33e3185f63ce8565f8793d18b5",
+              "keyLocation": "https://joyjunkremoval.com/17ebff33e3185f63ce8565f8793d18b5.txt",
+              "urlList": [
+                "https://joyjunkremoval.com/",
+                "https://joyjunkremoval.com/services.html",
+                "https://joyjunkremoval.com/about.html",
+                "https://joyjunkremoval.com/paso-robles-junk-removal.html",
+                "https://joyjunkremoval.com/san-luis-obispo-junk-removal.html",
+                "https://joyjunkremoval.com/atascadero-junk-removal.html",
+                "https://joyjunkremoval.com/arroyo-grande-junk-removal.html"
+              ]
+            }'
+          echo ""
+          echo "IndexNow re-pinged ✅"
