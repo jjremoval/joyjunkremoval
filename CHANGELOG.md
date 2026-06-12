@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-12: Re-center favicon on the true face center (was 60px too high, clipping the head/smile) via flood-fill detection; cache-bust to v=3; bump cache to v19
 - 2026-06-12: Fix favicon crop (was clipping the face) — recenter on full face + add padding; cache-bust favicon link to v=2; bump cache to v18
 - 2026-06-12: Make favicon a transparent circular smiley (face only, no white box); clean-crop app icons
 - 2026-06-12: Add favicon + apple-touch-icon (cropped logo face) on all 7 pages; fix manifest icons to proper square sizes; add branded 404 page; bump cache to v17
