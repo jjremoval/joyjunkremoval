@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-12: Add favicon + apple-touch-icon (cropped logo face) on all 7 pages; fix manifest icons to proper square sizes; add branded 404 page; bump cache to v17
 - 2026-06-11: Add GitHub Actions "SEO Monitor" workflow — weekly cloud health-check of all pages (emails on failure) + IndexNow re-ping
 - 2026-06-11: Add Cloudflare Web Analytics beacon to all 7 pages (traffic/conversion measurement); add missing defer to main.js on services/about; bump cache to v16
 - 2026-06-10: Add llms.txt (AI-crawler summary) and IndexNow key file for AI-search visibility (Bing/ChatGPT/Copilot indexing)

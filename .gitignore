@@ -10,6 +10,8 @@ temp_screenshots/
 # Internal strategy docs — keep private, do NOT publish to public site
 *.pdf
 SEO_MAINTENANCE.md
+PROJECT_OVERVIEW.md
+SCORECARD.md
 
 # Node boilerplate (static site, no build step)
 package.json
