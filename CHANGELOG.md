@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-13: Remove dead leftover files from previous PHP/Apache host — submit.php (unused; form posts to Cloudflare Worker; was publicly exposing CRM companyId), .htaccess (GitHub Pages ignores Apache config; HTTPS handled by Pages), package.json (empty boilerplate); fix .gitignore for docs/ + tools/
 - 2026-06-13: Apply competitor-research findings — rewrite home FAQ (8 items + schema) with pricing-transparency/same-day/hot-tub/confirm-before-haul; sharpen hero + trust bar ("Honest Pricing — Pay Only for What We Haul"); add Hot Tub & Spa Removal service card + Service schema; bump cache to v20
 - 2026-06-12: Re-center favicon on the true face center (was 60px too high, clipping the head/smile) via flood-fill detection; cache-bust to v=3; bump cache to v19
 - 2026-06-12: Fix favicon crop (was clipping the face) — recenter on full face + add padding; cache-bust favicon link to v=2; bump cache to v18

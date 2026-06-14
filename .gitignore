@@ -7,11 +7,12 @@
 # Temporary working files (previews, screenshots)
 temp_screenshots/
 
-# Internal strategy docs — keep private, do NOT publish to public site
+# Private working folders — local only, never deployed (synced via Google Drive)
+# docs/ = all reference docs + reports + review CSVs (markdown/CSV)
+# tools/ = scraper program files + working data
+docs/
+tools/
 *.pdf
-SEO_MAINTENANCE.md
-PROJECT_OVERVIEW.md
-SCORECARD.md
 
 # Node boilerplate (static site, no build step)
 package.json
