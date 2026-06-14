@@ -16,7 +16,7 @@ Hosted on GitHub Pages (thicktreasure365/joyjunkremoval), auto-deploys on push t
 | `manifest.json` | PWA manifest |
 | `brand_assets/` | Logo, brand guidelines, inspiration screenshots |
 | `CHANGELOG.md` | Log all major changes here |
-| `.githooks/commit-msg` | Auto-updates CHANGELOG.md on every commit |
+| `.githooks/post-commit` | Auto-logs each commit into CHANGELOG.md (folds the entry into the same commit via amend; loop-safe) |
 
 ## Goal
 

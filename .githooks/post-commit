@@ -1,31 +1,42 @@
 #!/bin/sh
-exit 0
-# Auto-update CHANGELOG.md by amending the just-created commit
+# Auto-log every commit into CHANGELOG.md and fold the entry INTO that same
+# commit via --amend, so history stays one-commit-per-change.
+#
+# Loop-safe: the amend re-fires this hook, but by then the entry is already in
+# CHANGELOG.md, so the grep guard below makes us exit before amending again.
+# The amend runs locally at commit time (before any push), so the SHA rewrite
+# is harmless. --no-verify on the amend skips pre-commit/commit-msg (not this).
 
-COMMIT_MSG=$(git log -1 --pretty=%B | head -1)
-DATE=$(date +%Y-%m-%d)
+MSG=$(git log -1 --pretty=%s)
 
-# Skip merge commits
-case "$COMMIT_MSG" in
-  Merge*|merge*) exit 0 ;;
+# Skip merges / reverts — not real site changes.
+case "$MSG" in
+  Merge*|merge*|Revert*|revert*) exit 0 ;;
 esac
 
-# Skip if entry already exists — prevents amend loop
-ENTRY="- $DATE: $COMMIT_MSG"
-if grep -qF "$ENTRY" CHANGELOG.md 2>/dev/null; then
-  exit 0
-fi
+# Only act from the repo root, where CHANGELOG.md lives.
+[ -f CHANGELOG.md ] || exit 0
 
-python3 -c "
+DATE=$(date +%Y-%m-%d)
+ENTRY="- $DATE: $MSG"
+
+# Already logged -> this is the amend re-fire; stop here (breaks the loop).
+# The `--` is required: the entry starts with "-" and would otherwise look like
+# a grep flag.
+grep -qF -- "$ENTRY" CHANGELOG.md && exit 0
+
+# Prepend the entry under the "## [Unreleased]" heading (newest first).
+python3 - "$ENTRY" <<'PY'
 import sys
-msg, date = sys.argv[1], sys.argv[2]
-with open('CHANGELOG.md', 'r') as f:
+entry = sys.argv[1]
+with open('CHANGELOG.md') as f:
     content = f.read()
-new_entry = '- ' + date + ': ' + msg + '\n'
-content = content.replace('## [Unreleased]\n', '## [Unreleased]\n' + new_entry, 1)
-with open('CHANGELOG.md', 'w') as f:
-    f.write(content)
-" "$COMMIT_MSG" "$DATE"
+needle = '## [Unreleased]\n'
+if needle in content:
+    content = content.replace(needle, needle + entry + '\n', 1)
+    with open('CHANGELOG.md', 'w') as f:
+        f.write(content)
+PY
 
 git add CHANGELOG.md
-git commit --amend --no-edit
+git commit --amend --no-edit --no-verify >/dev/null 2>&1
