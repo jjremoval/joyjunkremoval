@@ -84,10 +84,11 @@ async function submitForm(e) {
     email,
     phone_number: phone_raw,
     message,
+    company: document.getElementById('cf-company').value, // honeypot (stays empty for humans)
   };
 
   try {
-    const res = await fetch('https://joyjunk-form.mikedurighello.workers.dev', {
+    const res = await fetch('https://joyjunk-form.quiet-firefly-7116.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

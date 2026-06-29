@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-28: Switch lead form to Resend email backend; add honeypot
 - 2026-06-14: Fix CHANGELOG auto-logging via post-commit hook
 - 2026-06-13: Expand home FAQ from 8 to 11 items (added estate cleanouts, areas served, get-a-quote) to match GBP Q&A set; cache v21
 - 2026-06-13: Remove dead leftover files from previous PHP/Apache host — submit.php (unused; form posts to Cloudflare Worker; was publicly exposing CRM companyId), .htaccess (GitHub Pages ignores Apache config; HTTPS handled by Pages), package.json (empty boilerplate); fix .gitignore for docs/ + tools/
