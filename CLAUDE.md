@@ -1,7 +1,8 @@
 # Joy Junk Removal Website
 
 Business website for Joy Junk Removal at joyjunkremoval.com.
-Hosted on GitHub Pages (thicktreasure365/joyjunkremoval), auto-deploys on push to main.
+Hosted on GitHub Pages (jjremoval/joyjunkremoval — **public repo**), auto-deploys on push to main.
+Owner: Ron (`hello@joyjunkremoval.com`). Account map & recovery: `docs/40_Account_Handoff.md`.
 
 ## File structure
 
@@ -36,6 +37,29 @@ After any change: edit locally → commit → push to main → GitHub Pages depl
 - Always check `brand_assets/brand_guidelines.md` before making visual changes
 - Always invoke the frontend-design skill before writing any frontend code, every session, no exceptions
 - Always develop and test on localhost first — do not push to GitHub unless explicitly asked
+
+## Security & privacy (READ — protects the business and customers)
+
+**This repo is PUBLIC. Anything committed is public forever — including git history**, even after a file is deleted. (We learned this the hard way: an old `submit.php` leaked a CRM ID that still lives in history.) So:
+
+**1. Never commit secrets.** No API keys, tokens, passwords, or customer data in tracked files — ever.
+- Secrets live **server-side** (Cloudflare Worker secrets) or in **gitignored** locations only.
+- Gitignored, never deployed/committed: `docs/`, `tools/`, `cloudflare-worker/`, `.apify_token`, `.indexnow-key.txt`.
+- **Before committing, scan the diff for anything secret-like** (`key`, `token`, `secret`, `password`, IDs). If unsure, don't commit it.
+
+**2. Client-side code (HTML/JS) is public — keep secrets out of it.** The contact form must post to the **Cloudflare Worker**, which holds the email key as a server-side secret. Never put a key/CRM ID in the page itself.
+
+**3. Public-by-design — these are NOT secrets and are fine in the code:** the Cloudflare Web Analytics beacon token, the Worker URL (`*.workers.dev`), and the IndexNow key file (`17ebff…txt`). They're meant to be public; don't treat them as sensitive.
+
+**4. Never paste a secret into chat or an un-redacted screenshot.** Transcripts persist. If a secret is shown to an assistant or posted anywhere, treat it as compromised and **rotate it** (what matters is *account access*, not the key string — log in via `hello@` and regenerate).
+
+**5. Customer/lead data stays out of the repo.** Names, emails, phone numbers from the form flow **only via email** (Worker → Resend → `hello@`). Never log or commit them.
+
+**6. Commit author email:** use the GitHub **noreply** address (already set), never a real personal email — public commits expose it to scrapers.
+
+**7. DNS safety (IONOS):** never use IONOS "auto-connect/auto-DNS" templates (they wipe Google Workspace email records). Never edit the Google `MX`/`SPF` or the GitHub Pages `A` records. Email-service records (e.g. Resend) live on the `send.` subdomain only.
+
+**8. Private docs never ship:** `docs/` (strategy, reports) and `tools/` (scraper) are gitignored and must never be deployed to the public site or committed.
 
 ## First-time setup (after cloning)
 
