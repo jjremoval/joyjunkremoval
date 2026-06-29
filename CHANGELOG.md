@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-28: Add docs timestamp rule to CLAUDE.md
 - 2026-06-28: Add Security & privacy rules to CLAUDE.md; update repo owner
 - 2026-06-28: Move Web Analytics to Ron's Cloudflare (new beacon token)
 - 2026-06-28: Switch lead form to Resend email backend; add honeypot

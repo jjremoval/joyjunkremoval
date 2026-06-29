@@ -37,6 +37,7 @@ After any change: edit locally → commit → push to main → GitHub Pages depl
 - Always check `brand_assets/brand_guidelines.md` before making visual changes
 - Always invoke the frontend-design skill before writing any frontend code, every session, no exceptions
 - Always develop and test on localhost first — do not push to GitHub unless explicitly asked
+- Each `docs/` markdown carries an `_Updated: YYYY-MM-DD_` line near the top — **bump it whenever you edit that doc** (`docs/` is gitignored, so this is its only freshness signal). Do NOT add timestamps to tracked files (HTML/CSS/JS/CLAUDE.md) — git history + `CHANGELOG.md` already track those, and a manual stamp would just go stale.
 
 ## Security & privacy (READ — protects the business and customers)
 
