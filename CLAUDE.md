@@ -39,6 +39,21 @@ After any change: edit locally → commit → push to main → GitHub Pages depl
 - Always develop and test on localhost first — do not push to GitHub unless explicitly asked
 - Each `docs/` markdown carries an `_Updated: YYYY-MM-DD_` line near the top — **bump it whenever you edit that doc** (`docs/` is gitignored, so this is its only freshness signal). Do NOT add timestamps to tracked files (HTML/CSS/JS/CLAUDE.md) — git history + `CHANGELOG.md` already track those, and a manual stamp would just go stale.
 
+## Session bootstrap (every session, any Claude working in this folder)
+
+This project's source of truth is **this folder**, not Claude's memory. On starting work here:
+1. **Read `docs/00_MEMORY.md` first** — orientation, systems, accounts, what's next.
+2. **Check `docs/11_SEO_Maintenance.md` → "Next due"** — if a weekly/monthly/quarterly task is due, surface it to the owner (Ron) with anything you can pre-draft.
+3. **Standing behaviors:**
+   - After any SEO suggestion or change → update `docs/10_SEO_Strategy.md` (and its Radar Log).
+   - After meaningful code changes → prompt the owner to commit.
+   - When you edit a `docs/` file → bump its `_Updated:` line.
+   - When pages are added → run the "When a new page is added" workflow in `docs/11`.
+
+## Source-of-truth rule (keep the folder self-contained)
+
+**Nothing project-critical may live only in Claude's per-machine memory or a personal cloud routine. If it matters for this project, it goes in this folder** (`CLAUDE.md` or `docs/`) — so any owner (e.g., Ron) can pick up the Google Drive folder + their own Claude and have the complete picture *and* behavior. Treat account memory as a disposable convenience cache; the folder must stand alone.
+
 ## Security & privacy (READ — protects the business and customers)
 
 **This repo is PUBLIC. Anything committed is public forever — including git history**, even after a file is deleted. (We learned this the hard way: an old `submit.php` leaked a CRM ID that still lives in history.) So:
