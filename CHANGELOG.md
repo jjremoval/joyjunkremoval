@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-06-30: Switch maintenance reminders to monthly-only; note Apify review pull
 - 2026-06-30: Fix maintenance-reminders workflow YAML (heredoc broke block scalar; use printf)
 - 2026-06-30: Add weekly/monthly maintenance-reminder workflow; add session-bootstrap + source-of-truth rules to CLAUDE.md
 - 2026-06-28: Add docs timestamp rule to CLAUDE.md
