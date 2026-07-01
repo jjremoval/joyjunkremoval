@@ -3,13 +3,13 @@ name: Maintenance reminders
 # Emails hello@joyjunkremoval.com a maintenance checklist on a schedule, so the
 # owner (Ron) is reminded to open a Claude session and run the routine.
 # Self-contained: lives in the repo, runs on the repo owner's GitHub Actions,
-# sends via Resend. Requires one repo secret: RESEND_API_KEY (Settings → Secrets
-# and variables → Actions). Manual run (workflow_dispatch) sends a test email.
+# sends via Resend. Requires one repo secret: RESEND_API_KEY (Settings > Secrets
+# and variables > Actions). Manual run (workflow_dispatch) sends a test email.
 
 on:
   schedule:
-    - cron: "0 15 * * 1"   # Weekly  — Mondays 15:00 UTC (~8am PT)
-    - cron: "0 15 1 * *"   # Monthly — 1st of month 15:00 UTC
+    - cron: "0 15 * * 1"   # Weekly  - Mondays 15:00 UTC (~8am PT)
+    - cron: "0 15 1 * *"   # Monthly - 1st of month 15:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -22,36 +22,32 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
         run: |
           if [ -z "$RESEND_API_KEY" ]; then
-            echo "::error::RESEND_API_KEY secret is not set. Add it in Settings → Secrets and variables → Actions."
+            echo "::error::RESEND_API_KEY secret is not set. Add it in Settings > Secrets and variables > Actions."
             exit 1
           fi
 
           if [ "$SCHEDULE" = "0 15 1 * *" ]; then
-            SUBJECT="🗓️ Monthly Joy Junk Removal maintenance is due"
-            BODY="$(cat <<'EOF'
-Time for the MONTHLY Joy Junk Removal routine. Open a Claude session on the project folder and run:
-
-• Monthly upkeep: indexing check, page-speed spot-check, draft 1 season-timed blog/service-area page, competitor-review scraper refresh, refresh sitemap.
-• Strategy Radar: 1 cutting-edge SEO insight + 1 GBP move + 1 website/CRO improvement.
-• Marketing Performance Log: record GSC / GBP / lead-email / Cloudflare / review numbers vs. baseline.
-• You (Ron): check Search Console top queries, add 2-3 GBP photos, confirm the GBP is still live.
-
-Every 3 months also do the QUARTERLY items: citation/NAP audit, 1-2 local backlinks, full competitor re-scrape.
-
-Full checklist: docs/11_SEO_Maintenance.md (in the project's Google Drive folder).
-EOF
-)"
+            SUBJECT="Monthly Joy Junk Removal maintenance is due"
+            BODY=$(printf '%s\n' \
+              "Time for the MONTHLY Joy Junk Removal routine. Open a Claude session on the project folder and run:" \
+              "" \
+              "- Monthly upkeep: indexing check, page-speed spot-check, draft 1 season-timed blog/service-area page, competitor-review scraper refresh, refresh sitemap." \
+              "- Strategy Radar: 1 cutting-edge SEO insight + 1 GBP move + 1 website/CRO improvement." \
+              "- Marketing Performance Log: record GSC / GBP / lead-email / Cloudflare / review numbers vs. baseline." \
+              "- You (Ron): check Search Console top queries, add 2-3 GBP photos, confirm the GBP is still live." \
+              "" \
+              "Every 3 months also do the QUARTERLY items: citation/NAP audit, 1-2 local backlinks, full competitor re-scrape." \
+              "" \
+              "Full checklist: docs/11_SEO_Maintenance.md (in the project's Google Drive folder).")
           else
-            SUBJECT="🗓️ Weekly Joy Junk Removal maintenance is due"
-            BODY="$(cat <<'EOF'
-Time for the WEEKLY Joy Junk Removal routine. Open a Claude session on the project folder and run:
-
-• Claude does: page health check, lead-form/Worker test, IndexNow re-ping, analytics-trend report, draft 1 GBP post, scan for new reviews.
-• You (Ron): TEXT THE GOOGLE REVIEW LINK to this week's customers (the #1 lever), reply to any new reviews, post the GBP draft, note your current review count.
-
-Full checklist: docs/11_SEO_Maintenance.md (in the project's Google Drive folder).
-EOF
-)"
+            SUBJECT="Weekly Joy Junk Removal maintenance is due"
+            BODY=$(printf '%s\n' \
+              "Time for the WEEKLY Joy Junk Removal routine. Open a Claude session on the project folder and run:" \
+              "" \
+              "- Claude does: page health check, lead-form/Worker test, IndexNow re-ping, analytics-trend report, draft 1 GBP post, scan for new reviews." \
+              "- You (Ron): TEXT THE GOOGLE REVIEW LINK to this week's customers (the #1 lever), reply to any new reviews, post the GBP draft, note your current review count." \
+              "" \
+              "Full checklist: docs/11_SEO_Maintenance.md (in the project's Google Drive folder).")
           fi
 
           jq -n \
