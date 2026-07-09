@@ -1,0 +1,76 @@
+name: SEO Radar
+
+# Monthly "SEO + Website Radar": Claude researches genuinely current local-SEO /
+# Google Business Profile / AI-search developments via web search, then emails a
+# 3-recommendation report to hello@ via Resend. Fully cloud — no computer, no
+# claude.ai account, no clicks.
+#
+# Repo secrets required (Settings > Secrets and variables > Actions):
+#   ANTHROPIC_API_KEY  - Claude API key (currently Mike's; swap value to Ron's later)
+#   RESEND_API_KEY     - same key the maintenance-reminders workflow uses
+#
+# Manual test run: Actions tab -> SEO Radar -> "Run workflow".
+
+on:
+  schedule:
+    - cron: "30 15 1 * *" # 1st of month, 15:30 UTC (~8:30am Pacific)
+  workflow_dispatch: {}
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Research via Claude API (web search)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          PROMPT="Today is $(date -u +'%B %Y'). You are the monthly 'SEO + Website Radar' for Joy Junk Removal, a local, family-run junk removal business serving San Luis Obispo County, CA (https://joyjunkremoval.com). Use web search to find genuinely current developments (roughly the last 60 days) in: local SEO, Google Business Profile, and AI search (ChatGPT / Gemini / Google AI Overviews). Then give EXACTLY three recommendations: (1) one cutting-edge SEO insight relevant to a local junk removal business, (2) one specific Google Business Profile move to try this month, (3) one website/CRO/UX improvement with step-by-step implementation instructions. Write a short, skimmable PLAIN-TEXT email report (no markdown symbols like # or **) with source URLs inline. Do not change anything - just research and report. Output only the report."
+
+          jq -n --arg prompt "$PROMPT" '{
+            model: "claude-opus-4-8",
+            max_tokens: 16000,
+            thinking: {type: "adaptive"},
+            tools: [{type: "web_search_20260209", name: "web_search", max_uses: 8}],
+            messages: [{role: "user", content: $prompt}]
+          }' > req.json
+
+          code=$(curl -s -o resp.json -w "%{http_code}" --max-time 900 \
+            https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d @req.json)
+          if [ "$code" != "200" ]; then
+            echo "::error::Claude API returned HTTP $code"
+            cat resp.json
+            exit 1
+          fi
+
+          jq -r '[.content[] | select(.type=="text") | .text] | join("\n\n")' resp.json > report.txt
+          if [ ! -s report.txt ]; then
+            echo "::error::Empty report (stop_reason: $(jq -r .stop_reason resp.json))"
+            exit 1
+          fi
+          echo "Report generated: $(wc -c < report.txt | tr -d ' ') bytes, $(jq -r '.usage.output_tokens' resp.json) output tokens"
+
+      - name: Email the report via Resend
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          jq -n \
+            --arg from "Joy Junk Removal <leads@send.joyjunkremoval.com>" \
+            --arg to "hello@joyjunkremoval.com" \
+            --arg subject "SEO + Website Radar - $(date -u +'%B %Y')" \
+            --rawfile text report.txt \
+            '{from: $from, to: [$to], reply_to: $to, subject: $subject, text: $text}' > email.json
+
+          code=$(curl -s -o resend.json -w "%{http_code}" -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @email.json)
+          if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+            echo "::error::Resend returned HTTP $code"
+            cat resend.json
+            exit 1
+          fi
+          echo "Radar report emailed to hello@joyjunkremoval.com"
