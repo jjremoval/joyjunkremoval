@@ -7,13 +7,14 @@
 # Temporary working files (previews, screenshots)
 temp_screenshots/
 
-# Private working folders — local only, never deployed (synced via Google Drive)
+# Private working folders — live in the private repo `joyjunk-ops` and are
+# symlinked here locally (no trailing slash so the patterns match the symlinks).
 # docs/ = all reference docs + reports + review CSVs (markdown/CSV)
 # tools/ = scraper program files + working data
 # cloudflare-worker/ = lead-form Worker source (deployed to Cloudflare, not Pages)
-docs/
-tools/
-cloudflare-worker/
+docs
+tools
+cloudflare-worker
 *.pdf
 
 # Node boilerplate (static site, no build step)

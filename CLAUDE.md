@@ -37,7 +37,7 @@ After any change: edit locally → commit → push to main → GitHub Pages depl
 - Always check `brand_assets/brand_guidelines.md` before making visual changes
 - Always invoke the frontend-design skill before writing any frontend code, every session, no exceptions
 - Always develop and test on localhost first — do not push to GitHub unless explicitly asked
-- Each `docs/` markdown carries an `_Updated: YYYY-MM-DD_` line near the top — **bump it whenever you edit that doc** (`docs/` is gitignored, so this is its only freshness signal). Do NOT add timestamps to tracked files (HTML/CSS/JS/CLAUDE.md) — git history + `CHANGELOG.md` already track those, and a manual stamp would just go stale.
+- Each `docs/` markdown carries an `_Updated: YYYY-MM-DD_` line near the top — **bump it whenever you edit that doc** (it's the human-visible freshness signal). Do NOT add timestamps to tracked files in THIS repo (HTML/CSS/JS/CLAUDE.md) — git history + `CHANGELOG.md` already track those, and a manual stamp would just go stale.
 
 ## Session bootstrap (every session, any Claude working in this folder)
 
@@ -50,18 +50,24 @@ This project's source of truth is **this folder**, not Claude's memory. On start
    - When you edit a `docs/` file → bump its `_Updated:` line.
    - When pages are added → run the "When a new page is added" workflow in `docs/11`.
 
-## Source-of-truth rule (keep the folder self-contained)
+## Source-of-truth rule (keep the two repos self-contained)
 
-**Nothing project-critical may live only in Claude's per-machine memory or a personal cloud routine. If it matters for this project, it goes in this folder** (`CLAUDE.md` or `docs/`) — so any owner (e.g., Ron) can pick up the Google Drive folder + their own Claude and have the complete picture *and* behavior. Treat account memory as a disposable convenience cache; the folder must stand alone.
+**Nothing project-critical may live only in Claude's per-machine memory or a personal cloud routine. If it matters for this project, it goes in git** — `CLAUDE.md` in this public repo, or `docs/` in the private **`joyjunk-ops`** repo — so any owner (e.g., Ron) can clone the two repos + their own Claude and have the complete picture *and* behavior. Treat account memory as a disposable convenience cache; the repos must stand alone.
+
+## Repo layout (two repos, one working folder)
+
+- **This repo** (`jjremoval/joyjunkremoval`, PUBLIC) — the live site. Root must stay the Pages web root.
+- **`joyjunk-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../joyjunk-ops/docs`, etc.), so every relative path here keeps working.
+- **Working copies live in `~/Projects/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). The Drive folder is for job photos and non-git files only.
 
 ## Security & privacy (READ — protects the business and customers)
 
 **This repo is PUBLIC. Anything committed is public forever — including git history**, even after a file is deleted. (We learned this the hard way: an old `submit.php` leaked a CRM ID that still lives in history.) So:
 
 **1. Never commit secrets.** No API keys, tokens, passwords, or customer data in tracked files — ever.
-- Secrets live **server-side** (Cloudflare Worker secrets) or in **gitignored** locations only.
-- Gitignored, never deployed/committed: `docs/`, `tools/`, `cloudflare-worker/`, `.apify_token`, `.indexnow-key.txt`.
-- **Before committing, scan the diff for anything secret-like** (`key`, `token`, `secret`, `password`, IDs). If unsure, don't commit it.
+- Secrets live **server-side** (Cloudflare Worker secrets), in **env vars** (`APIFY_TOKEN` from `~/.config/joyjunk/apify_token`), or a password manager — never in either repo (private ≠ secret-safe).
+- Gitignored here (they live in the private `joyjunk-ops` repo, symlinked locally): `docs`, `tools`, `cloudflare-worker`; plus `.apify_token`, `.indexnow-key.txt`.
+- **A `gitleaks` pre-commit hook scans every commit** in both repos and blocks anything secret-like. Don't bypass it (`--no-verify`) without a very good reason.
 
 **2. Client-side code (HTML/JS) is public — keep secrets out of it.** The contact form must post to the **Cloudflare Worker**, which holds the email key as a server-side secret. Never put a key/CRM ID in the page itself.
 
@@ -75,15 +81,22 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 **7. DNS safety (IONOS):** never use IONOS "auto-connect/auto-DNS" templates (they wipe Google Workspace email records). Never edit the Google `MX`/`SPF` or the GitHub Pages `A` records. Email-service records (e.g. Resend) live on the `send.` subdomain only.
 
-**8. Private docs never ship:** `docs/` (strategy, reports) and `tools/` (scraper) are gitignored and must never be deployed to the public site or committed.
+**8. Private docs never ship:** `docs/` (strategy, reports) and `tools/` (scraper) live in the private `joyjunk-ops` repo and are gitignored here — they must never be deployed to the public site or committed to this repo.
 
 ## First-time setup (after cloning)
 
-Run once to activate the git hooks:
+Clone both repos side by side and link them:
 ```
-git config core.hooksPath .githooks
+cd ~/Projects
+git clone https://github.com/jjremoval/joyjunkremoval.git joyjunkremoval_website
+git clone https://github.com/thicktreasure365/joyjunk-ops.git joyjunk-ops
+cd joyjunkremoval_website
+ln -s ../joyjunk-ops/docs docs
+ln -s ../joyjunk-ops/tools tools
+ln -s ../joyjunk-ops/cloudflare-worker cloudflare-worker
+git config core.hooksPath .githooks   # run in BOTH repos
 ```
-This enables auto-updating of `CHANGELOG.md` on every commit.
+The hooks give you: auto-updating `CHANGELOG.md` on every commit (this repo) and a `gitleaks` secret scan blocking bad commits (both repos — install gitleaks to `~/.local/bin`).
 
 ## Git commit style
 

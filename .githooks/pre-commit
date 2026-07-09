@@ -1,0 +1,15 @@
+#!/bin/sh
+# Secret scan — blocks any commit whose staged changes contain a credential.
+# Requires gitleaks (https://github.com/gitleaks/gitleaks) at ~/.local/bin or on PATH.
+GITLEAKS="$HOME/.local/bin/gitleaks"
+command -v gitleaks >/dev/null 2>&1 && GITLEAKS="$(command -v gitleaks)"
+if [ ! -x "$GITLEAKS" ]; then
+  echo "⚠️  gitleaks not found — commit allowed WITHOUT secret scan. Install it to ~/.local/bin."
+  exit 0
+fi
+if ! "$GITLEAKS" git --pre-commit --staged --redact --no-banner; then
+  echo ""
+  echo "✋ Commit blocked: possible secret in staged changes (see gitleaks output above)."
+  echo "   Remove the secret, or if it is a confirmed false positive add a .gitleaksignore entry."
+  exit 1
+fi

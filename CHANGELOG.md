@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-09: Add README, gitleaks pre-commit hook; untrack .DS_Store; split private docs to joyjunk-ops
 - 2026-06-30: Add review-mining FAQs (price-lock, student/Cal Poly move-outs) + clean-up trust signal
 - 2026-06-30: Switch maintenance reminders to monthly-only; note Apify review pull
 - 2026-06-30: Fix maintenance-reminders workflow YAML (heredoc broke block scalar; use printf)
