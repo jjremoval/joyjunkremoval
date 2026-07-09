@@ -45,7 +45,7 @@ jobs:
             "" \
             "QUARTERLY (every ~3 months): citation/NAP audit, 1-2 local backlinks, full competitor re-scrape." \
             "" \
-            "Full checklist: docs/11_SEO_Maintenance.md (in the project's Google Drive folder).")
+            "Full checklist: docs/11_SEO_Maintenance.md in the private joyjunk-ops repo (github.com -> joyjunk-ops -> docs).")
 
           jq -n \
             --arg from "Joy Junk Removal <leads@send.joyjunkremoval.com>" \
