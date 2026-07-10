@@ -9,6 +9,8 @@ name: SEO Monitor
 on:
   schedule:
     - cron: '13 15 * * *'   # daily ~15:13 UTC (~8am Pacific)
+  push:
+    branches: [main]         # verify the site right after every deploy
   workflow_dispatch:
     inputs:
       test_alert:
@@ -20,6 +22,15 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for deploy to go live (push-triggered runs only)
+        if: github.event_name == 'push'
+        run: |
+          # GitHub Pages takes ~40-90s to publish after a push. Without this
+          # wait, a push-triggered check would race the deploy and test the
+          # OLD version of the site.
+          echo "Push-triggered run - waiting 90s for Pages to publish..."
+          sleep 90
+
       - name: Health check all pages
         run: |
           urls=(

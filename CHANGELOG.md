@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-10: Monitor: also run after every deploy (90s publish wait) - bad pushes caught in ~1 min
 - 2026-07-10: Scorecard: exclude test leads, last-month comparison block, log pointer, failure alert to hello@
 - 2026-07-10: Radar: ranking emphasis (no-new-content SEO, customer reviews GBP, texts+calls website) + content-option footer
 - 2026-07-10: Radar: 3x3 ranked recommendations, recycling via previous report, failure alert to hello@
