@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-10: Radar: back to 1 recommendation per category (3 total) - 9 was too many
 - 2026-07-10: Monitor: also run after every deploy (90s publish wait) - bad pushes caught in ~1 min
 - 2026-07-10: Scorecard: exclude test leads, last-month comparison block, log pointer, failure alert to hello@
 - 2026-07-10: Radar: ranking emphasis (no-new-content SEO, customer reviews GBP, texts+calls website) + content-option footer

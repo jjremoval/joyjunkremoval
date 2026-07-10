@@ -43,14 +43,14 @@ jobs:
 
           Use web search to find genuinely current developments (roughly the last 60 days) in three categories: (A) local SEO including AI search (ChatGPT / Gemini / Google AI Overviews), (B) Google Business Profile, (C) website / conversion / UX.
 
-          Produce EXACTLY NINE recommendations: three per category, RANKED within each category from most to least recommended.
+          Produce EXACTLY THREE recommendations: the single best pick per category - the highest-impact move Ron can make this month in each.
 
           Format as a skimmable PLAIN-TEXT email (no markdown symbols like # or **):
-          - Open with the heading 'IF YOU ONLY DO THREE THINGS THIS MONTH:' followed by the number-1 pick from each category, one line each.
-          - Then three sections titled LOCAL SEO & AI SEARCH, GOOGLE BUSINESS PROFILE, and WEBSITE & CONVERSION. In each section: explain the number-1 pick with concrete step-by-step instructions Ron can follow, then list picks 2 and 3 in two-to-three sentences each.
-          - Include source URLs inline.
+          - Three sections titled LOCAL SEO & AI SEARCH, GOOGLE BUSINESS PROFILE, and WEBSITE & CONVERSION.
+          - In each section: the one pick, explained with concrete step-by-step instructions Ron can follow.
+          - Include source URLs inline. Keep the whole report readable in three minutes.
 
-          RANKING EMPHASIS (tie-breakers, not filters - a genuinely category-shifting development always wins regardless): (A) LOCAL SEO - prefer tactics that do NOT require producing new content; the owner has deliberately deferred content marketing for now. (B) GOOGLE BUSINESS PROFILE - when picks rank close, prefer the one that grows CUSTOMER reviews. (C) WEBSITE - prefer changes that increase TEXT MESSAGES and PHONE CALLS over form fills; texting and calling are this business's primary lead channels.
+          SELECTION EMPHASIS (tie-breakers, not filters - a genuinely category-shifting development always wins regardless): (A) LOCAL SEO - prefer tactics that do NOT require producing new content; the owner has deliberately deferred content marketing for now. (B) GOOGLE BUSINESS PROFILE - when picks rank close, prefer the one that grows CUSTOMER reviews. (C) WEBSITE - prefer changes that increase TEXT MESSAGES and PHONE CALLS over form fills; texting and calling are this business's primary lead channels.
 
           CONTINUITY RULE: below is last month's report (may be empty). If a past recommendation was likely NOT yet implemented and still ranks as the most valuable move in its category, recommend it again marked '(repeat - still top priority)'. Drop past items that appear done or outdated. LAST MONTH'S REPORT: $PREV
 
@@ -58,7 +58,7 @@ jobs:
 
           jq -n --arg prompt "$PROMPT" '{
             model: "claude-opus-4-8",
-            max_tokens: 20000,
+            max_tokens: 16000,
             thinking: {type: "adaptive"},
             tools: [{type: "web_search_20260209", name: "web_search", max_uses: 8}],
             messages: [{role: "user", content: $prompt}]
