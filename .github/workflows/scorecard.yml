@@ -174,7 +174,7 @@ jobs:
             "THEN LOG IT: open a Claude session on the project and say:" \
             "  log the scorecard: <paste your numbers>" \
             "Claude writes the month's entry in docs/12_Marketing_Performance_Log.md" \
-            "(private joyjunk-ops repo) and compares it against last month." \
+            "(private joyjunkremoval-ops repo) and compares it against last month." \
             "" \
             "MONTHLY DEEP WORK (same session, once a month): say" \
             "  run the monthly maintenance" \

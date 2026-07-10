@@ -52,18 +52,18 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 ## Source-of-truth rule (keep the two repos self-contained)
 
-**Nothing project-critical may live only in Claude's per-machine memory or a personal cloud routine. If it matters for this project, it goes in git** — `CLAUDE.md` in this public repo, or `docs/` in the private **`joyjunk-ops`** repo — so any owner (e.g., Ron) can clone the two repos + their own Claude and have the complete picture *and* behavior. Treat account memory as a disposable convenience cache; the repos must stand alone.
+**Nothing project-critical may live only in Claude's per-machine memory or a personal cloud routine. If it matters for this project, it goes in git** — `CLAUDE.md` in this public repo, or `docs/` in the private **`joyjunkremoval-ops`** repo — so any owner (e.g., Ron) can clone the two repos + their own Claude and have the complete picture *and* behavior. Treat account memory as a disposable convenience cache; the repos must stand alone.
 
 ## Repo layout (two repos, one working folder)
 
 - **This repo** (`jjremoval/joyjunkremoval`, PUBLIC) — the live site. Root must stay the Pages web root.
-- **`joyjunk-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../ops/docs`, etc.), so every relative path here keeps working.
+- **`joyjunkremoval-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../website-ops/docs`, etc.), so every relative path here keeps working.
 - **Local layout — one parent folder so the connection is obvious:**
   ```
   ~/Projects/joyjunk/
-  ├── website    ← this repo (jjremoval/joyjunkremoval)
-  ├── ops        ← joyjunk-ops (private docs/tools/worker)
-  └── forecast   ← joyjunk-forecast (private dashboard)
+  ├── website        ← this repo (jjremoval/joyjunkremoval)
+  ├── website-ops    ← joyjunkremoval-ops (private docs/tools/worker — the site's other half)
+  └── forecast       ← joyjunk-forecast (private dashboard, separate product)
   ```
 - **Working copies live in `~/Projects/joyjunk/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). Drive is for job photos and non-git files only.
 
@@ -73,7 +73,7 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 **1. Never commit secrets.** No API keys, tokens, passwords, or customer data in tracked files — ever.
 - Secrets live **server-side** (Cloudflare Worker secrets), in **env vars** (`APIFY_TOKEN` from `~/.config/joyjunk/apify_token`), or a password manager — never in either repo (private ≠ secret-safe).
-- Gitignored here (they live in the private `joyjunk-ops` repo, symlinked locally): `docs`, `tools`, `cloudflare-worker`; plus `.apify_token`, `.indexnow-key.txt`.
+- Gitignored here (they live in the private `joyjunkremoval-ops` repo, symlinked locally): `docs`, `tools`, `cloudflare-worker`; plus `.apify_token`, `.indexnow-key.txt`.
 - **A `gitleaks` pre-commit hook scans every commit** in both repos and blocks anything secret-like. Don't bypass it (`--no-verify`) without a very good reason.
 
 **2. Client-side code (HTML/JS) is public — keep secrets out of it.** The contact form must post to the **Cloudflare Worker**, which holds the email key as a server-side secret. Never put a key/CRM ID in the page itself.
@@ -88,7 +88,7 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 **7. DNS safety (IONOS):** never use IONOS "auto-connect/auto-DNS" templates (they wipe Google Workspace email records). Never edit the Google `MX`/`SPF` or the GitHub Pages `A` records. Email-service records (e.g. Resend) live on the `send.` subdomain only.
 
-**8. Private docs never ship:** `docs/` (strategy, reports) and `tools/` (scraper) live in the private `joyjunk-ops` repo and are gitignored here — they must never be deployed to the public site or committed to this repo.
+**8. Private docs never ship:** `docs/` (strategy, reports) and `tools/` (scraper) live in the private `joyjunkremoval-ops` repo and are gitignored here — they must never be deployed to the public site or committed to this repo.
 
 ## First-time setup (after cloning)
 
@@ -96,11 +96,11 @@ Clone both repos side by side under one parent and link them:
 ```
 mkdir -p ~/Projects/joyjunk && cd ~/Projects/joyjunk
 git clone https://github.com/jjremoval/joyjunkremoval.git website
-git clone https://github.com/thicktreasure365/joyjunk-ops.git ops
+git clone https://github.com/thicktreasure365/joyjunkremoval-ops.git website-ops
 cd website
-ln -s ../ops/docs docs
-ln -s ../ops/tools tools
-ln -s ../ops/cloudflare-worker cloudflare-worker
+ln -s ../website-ops/docs docs
+ln -s ../website-ops/tools tools
+ln -s ../website-ops/cloudflare-worker cloudflare-worker
 git config core.hooksPath .githooks   # run in BOTH repos
 ```
 The hooks give you: auto-updating `CHANGELOG.md` on every commit (this repo) and a `gitleaks` secret scan blocking bad commits (both repos — install gitleaks to `~/.local/bin`).

@@ -26,7 +26,7 @@ Deliberately simple: static HTML/CSS/JS, no framework, no build step.
 | `.githooks/` | post-commit auto-changelog + gitleaks pre-commit secret scan |
 
 Strategy docs, the competitor-review scraper, and the Worker source live in a **private
-companion repo** (`joyjunk-ops`) — see `CLAUDE.md` → "First-time setup" for how the two
+companion repo** (`joyjunkremoval-ops`) — see `CLAUDE.md` → "First-time setup" for how the two
 repos pair locally.
 
 ## Developing
