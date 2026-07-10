@@ -44,11 +44,17 @@ jobs:
             "https://api.resend.com/emails?limit=100" \
             -H "Authorization: Bearer $RESEND_API_KEY")
           if [ "$code" = "200" ]; then
+            # Subject format is "New lead: <Name> - <Phone>". Anything with
+            # "test" in it (any case) is a form test, not a customer - skip it.
             LEADS=$(jq --arg cutoff "$CUTOFF" \
-              '[.data[] | select((.subject | startswith("New lead:")) and (.created_at >= $cutoff))] | length' \
+              '[.data[] | select(
+                 (.subject | startswith("New lead:")) and
+                 (.created_at >= $cutoff) and
+                 ((.subject | ascii_downcase | contains("test")) | not)
+               )] | length' \
               emails.json)
-            echo "LEADS_LINE=- Web leads, last 30 days (via Resend): $LEADS" >> "$GITHUB_ENV"
-            echo "Leads: $LEADS"
+            echo "LEADS_LINE=- Web leads, last 30 days (via Resend, test submissions excluded): $LEADS" >> "$GITHUB_ENV"
+            echo "Leads (tests excluded): $LEADS"
           else
             echo "LEADS_LINE=- Web leads: count unavailable (Resend API HTTP $code)" >> "$GITHUB_ENV"
             echo "::warning::Resend list returned $code"
@@ -150,43 +156,72 @@ jobs:
           echo "GSC_LINE=- Google Search (GSC, 28 days to $END): $IMP impressions / $CLK clicks / avg position $POS" >> "$GITHUB_ENV"
           echo "GSC: $IMP impressions, $CLK clicks, position $POS"
 
+      - name: Fetch last month's numbers for comparison
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          # Pull the previous scorecard email back out of Resend and quote its
+          # AUTO-COLLECTED block, so this month's email shows both side by side.
+          : > prev_block.txt
+          LAST_ID=$(curl -s --max-time 60 "https://api.resend.com/emails?limit=100" \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            | jq -r '[.data[] | select(.subject | startswith("Monthly Scorecard"))][0].id // empty')
+          if [ -n "$LAST_ID" ]; then
+            curl -s --max-time 60 "https://api.resend.com/emails/$LAST_ID" \
+              -H "Authorization: Bearer $RESEND_API_KEY" \
+              | jq -r '.text // empty' \
+              | sed -n '/^AUTO-COLLECTED/,/^FILL IN/p' | sed '$d' | tail -n +2 > prev_block.txt
+            echo "Previous scorecard found — comparison block: $(wc -l < prev_block.txt | tr -d ' ') lines"
+          else
+            echo "No previous scorecard found — first run"
+          fi
+
       - name: Email the scorecard via Resend
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           MONTH=$(date -u +'%B %Y')
-          TEXT=$(printf '%s\n' \
-            "JOY JUNK REMOVAL - MONTHLY SCORECARD ($MONTH)" \
-            "" \
-            "AUTO-COLLECTED:" \
-            "${LEADS_LINE:-- Web leads: unavailable}" \
-            "${CF_LINE:-- Site analytics: unavailable}" \
-            "${GSC_LINE:-- Google Search: unavailable}" \
-            "" \
-            "FILL IN (about 1 minute, hello@ logins):" \
-            "" \
-            "1. Google Business Profile - business.google.com -> Performance:" \
-            "   calls ___ / website clicks ___" \
-            "" \
-            "2. Google reviews - google 'Joy Junk Removal':" \
-            "   total ___ (note how many are real customers vs friends)" \
-            "" \
-            "THEN LOG IT: open a Claude session on the project and say:" \
-            "  log the scorecard: <paste your numbers>" \
-            "Claude writes the month's entry in docs/12_Marketing_Performance_Log.md" \
-            "(private joyjunkremoval-ops repo) and compares it against last month." \
-            "" \
-            "MONTHLY DEEP WORK (same session, once a month): say" \
-            "  run the monthly maintenance" \
-            "Claude re-runs the competitor review scraper on NEW reviews only and" \
-            "proposes: new website FAQ items, new GBP Q&A, and new keywords -" \
-            "for your approval before anything changes.")
+          {
+            echo "JOY JUNK REMOVAL - MONTHLY SCORECARD ($MONTH)"
+            echo ""
+            echo "THIS MONTH (auto-collected):"
+            echo "${LEADS_LINE:-- Web leads: unavailable}"
+            echo "${CF_LINE:-- Site analytics: unavailable}"
+            echo "${GSC_LINE:-- Google Search: unavailable}"
+            if [ -s prev_block.txt ]; then
+              echo ""
+              echo "LAST MONTH (same numbers then, for comparison):"
+              cat prev_block.txt
+            fi
+            echo ""
+            echo "FILL IN (about 1 minute, hello@ logins):"
+            echo ""
+            echo "1. Google Business Profile - business.google.com -> Performance:"
+            echo "   calls ___ / website clicks ___"
+            echo ""
+            echo "2. Google reviews - google 'Joy Junk Removal':"
+            echo "   total ___ (note how many are real customers vs friends)"
+            echo ""
+            echo "THEN LOG IT: open a Claude session on the project and say:"
+            echo "  log the scorecard: <paste your numbers>"
+            echo "Claude writes the month's entry and the month-over-month analysis."
+            echo ""
+            echo "MONTHLY DEEP WORK (same session, once a month): say"
+            echo "  run the monthly maintenance"
+            echo "Claude re-runs the competitor review scraper on NEW reviews only and"
+            echo "proposes: new website FAQ items, new GBP Q&A, and new keywords -"
+            echo "for your approval before anything changes."
+            echo ""
+            echo "----"
+            echo "Full history + month-over-month analysis lives in the private repo:"
+            echo "github.com/thicktreasure365/joyjunkremoval-ops -> docs/12_Marketing_Performance_Log.md"
+          } > body.txt
 
           jq -n \
             --arg from "Joy Junk Removal <leads@send.joyjunkremoval.com>" \
             --arg to "hello@joyjunkremoval.com" \
             --arg subject "Monthly Scorecard - $MONTH" \
-            --arg text "$TEXT" \
+            --rawfile text body.txt \
             '{from: $from, to: [$to], reply_to: $to, subject: $subject, text: $text}' > email.json
 
           code=$(curl -s -o resend.json -w "%{http_code}" -X POST https://api.resend.com/emails \
@@ -199,3 +234,20 @@ jobs:
             exit 1
           fi
           echo "Scorecard emailed to hello@joyjunkremoval.com"
+
+      - name: Alert hello@ on failure (via Resend)
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          jq -n \
+            --arg from "Joy Junk Removal <leads@send.joyjunkremoval.com>" \
+            --arg to "hello@joyjunkremoval.com" \
+            --arg subject "ALERT: Monthly Scorecard failed - no scorecard email this month" \
+            --arg text "The monthly scorecard automation failed. The website itself is unaffected - this is not urgent. You can still collect the numbers manually (GSC, GBP, Cloudflare, reviews, lead emails). Details: https://github.com/jjremoval/joyjunkremoval/actions/runs/${{ github.run_id }}" \
+            '{from: $from, to: [$to], reply_to: $to, subject: $subject, text: $text}' \
+          | curl -s -X POST https://api.resend.com/emails \
+              -H "Authorization: Bearer $RESEND_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d @- \
+          && echo "" && echo "Failure alert sent to hello@"
