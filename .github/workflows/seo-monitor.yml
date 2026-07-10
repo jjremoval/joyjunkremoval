@@ -1,13 +1,20 @@
 name: SEO Monitor
 
-# Runs weekly in the cloud (no computer needed). Health-checks every page and
-# re-pings IndexNow. If any page is down, the job FAILS and GitHub emails you.
-# You can also run it on demand: Actions tab -> SEO Monitor -> "Run workflow".
+# Runs DAILY in the cloud (no computer needed). Health-checks every page and
+# the lead-form Worker; re-pings IndexNow on Mondays. On failure it emails an
+# alert to hello@ via Resend (in addition to GitHub's own failure email).
+# Manual run: Actions tab -> SEO Monitor -> "Run workflow"
+# (set "test_alert" to true to verify the alert email delivers).
 
 on:
   schedule:
-    - cron: '13 15 * * 1'   # Mondays ~15:13 UTC (~8am Pacific)
-  workflow_dispatch: {}      # manual "Run workflow" button
+    - cron: '13 15 * * *'   # daily ~15:13 UTC (~8am Pacific)
+  workflow_dispatch:
+    inputs:
+      test_alert:
+        description: "Send a test alert email to hello@ even if all checks pass"
+        required: false
+        default: "false"
 
 jobs:
   monitor:
@@ -58,9 +65,15 @@ jobs:
           fi
           echo "Lead-form Worker healthy (rejects invalid input with 400) ✅"
 
-      - name: Re-ping IndexNow (Bing / AI search)
+      - name: Re-ping IndexNow (Bing / AI search) — Mondays only
         if: success()
         run: |
+          # Health checks are daily, but re-pinging the index daily is noise —
+          # keep the original weekly cadence (also runs on manual dispatch).
+          if [ "$(date -u +%u)" != "1" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "Not Monday — skipping IndexNow ping (health checks already passed)"
+            exit 0
+          fi
           curl -s -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json; charset=utf-8" \
             -d '{
@@ -79,3 +92,36 @@ jobs:
             }'
           echo ""
           echo "IndexNow re-pinged ✅"
+
+      - name: Alert hello@ on failure (via Resend)
+        if: failure() || github.event.inputs.test_alert == 'true'
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.test_alert }}" = "true" ]; then
+            SUBJECT="TEST ALERT - joyjunkremoval.com monitor (everything is actually fine)"
+            BODY="This is a test of the failure-alert email. No action needed. Sent by a manual run of the SEO Monitor with test_alert=true."
+          else
+            SUBJECT="ALERT: joyjunkremoval.com health check FAILED"
+            BODY=$(printf '%s\n' \
+              "The daily site monitor found a problem - the website or the" \
+              "contact-form backend may be DOWN. Leads could be failing." \
+              "" \
+              "See exactly what failed:" \
+              "https://github.com/jjremoval/joyjunkremoval/actions/runs/${{ github.run_id }}" \
+              "" \
+              "Quick manual checks:" \
+              "- Open https://joyjunkremoval.com - does it load?" \
+              "- Submit the contact form - does an email arrive at hello@?")
+          fi
+          jq -n \
+            --arg from "Joy Junk Removal <leads@send.joyjunkremoval.com>" \
+            --arg to "hello@joyjunkremoval.com" \
+            --arg subject "$SUBJECT" \
+            --arg text "$BODY" \
+            '{from: $from, to: [$to], reply_to: $to, subject: $subject, text: $text}' \
+          | curl -s -X POST https://api.resend.com/emails \
+              -H "Authorization: Bearer $RESEND_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d @- \
+          && echo "" && echo "Alert email sent to hello@"

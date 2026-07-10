@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-10: Monitor: daily health checks (IndexNow stays Mondays) + failure alert email to hello@
 - 2026-07-09: Local folder naming: flat joyjunk_ prefix under ~/Projects
 - 2026-07-09: Rename companion repo references: joyjunk-ops -> joyjunkremoval-ops, local folder website-ops
 - 2026-07-09: Document grouped local layout: ~/Projects/joyjunk/{website,ops,forecast}
