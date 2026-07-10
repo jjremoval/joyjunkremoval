@@ -1,0 +1,99 @@
+name: Monthly Scorecard
+
+# Monthly marketing scorecard: auto-counts web leads via the Resend API, then
+# emails hello@ a pre-structured scorecard with the remaining blanks and
+# instructions for logging it. Replaces the old maintenance-reminders email.
+#
+# Phase 1: leads auto-counted; GSC / GBP / Cloudflare / reviews are blanks.
+# Phase 2 (planned): auto-fill Cloudflare (API token) + GSC (service account).
+#
+# Repo secret required: RESEND_API_KEY (shared with radar.yml).
+# Manual test run: Actions tab -> Monthly Scorecard -> "Run workflow".
+
+on:
+  schedule:
+    - cron: "45 15 1 * *" # 1st of month, 15:45 UTC (~8:45am Pacific, after the Radar)
+  workflow_dispatch: {}
+
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Count web leads via Resend API
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          # Leads = emails whose subject starts with "New lead:" in the last 30
+          # days. Each lead produces exactly one such email (the customer
+          # confirmation has a different subject). Volume is low, so one page
+          # of 100 covers the window with room to spare.
+          CUTOFF=$(date -u -d "30 days ago" +"%Y-%m-%d")
+          code=$(curl -s -o emails.json -w "%{http_code}" --max-time 60 \
+            "https://api.resend.com/emails?limit=100" \
+            -H "Authorization: Bearer $RESEND_API_KEY")
+          if [ "$code" = "200" ]; then
+            LEADS=$(jq --arg cutoff "$CUTOFF" \
+              '[.data[] | select((.subject | startswith("New lead:")) and (.created_at >= $cutoff))] | length' \
+              emails.json)
+            echo "LEADS=$LEADS" >> "$GITHUB_ENV"
+            echo "Leads in last 30 days: $LEADS"
+          else
+            # Degrade gracefully — the scorecard still goes out with a blank.
+            echo "LEADS=(count unavailable - Resend API returned $code)" >> "$GITHUB_ENV"
+            echo "::warning::Could not count leads (HTTP $code); sending scorecard anyway"
+          fi
+
+      - name: Email the scorecard via Resend
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          MONTH=$(date -u +'%B %Y')
+          TEXT=$(printf '%s\n' \
+            "JOY JUNK REMOVAL - MONTHLY SCORECARD ($MONTH)" \
+            "" \
+            "AUTO-COLLECTED:" \
+            "- Web leads, last 30 days (counted via Resend): $LEADS" \
+            "" \
+            "FILL IN (about 3 minutes, all logins are hello@):" \
+            "" \
+            "1. Google Search Console - search.google.com/search-console" \
+            "   Performance, last 28 days:" \
+            "   impressions ___ / clicks ___ / avg position ___" \
+            "" \
+            "2. Google Business Profile - business.google.com -> Performance:" \
+            "   calls ___ / website clicks ___" \
+            "" \
+            "3. Cloudflare - dash.cloudflare.com -> Analytics -> Web Analytics," \
+            "   last 30 days: page views ___" \
+            "" \
+            "4. Google reviews - google 'Joy Junk Removal':" \
+            "   total ___ (note how many are real customers vs friends)" \
+            "" \
+            "THEN LOG IT: open a Claude session on the project and say:" \
+            "  log the scorecard: <paste your numbers>" \
+            "Claude writes the month's entry in docs/12_Marketing_Performance_Log.md" \
+            "(private joyjunk-ops repo) and compares it against last month." \
+            "" \
+            "MONTHLY DEEP WORK (same session, once a month): say" \
+            "  run the monthly maintenance" \
+            "Claude re-runs the competitor review scraper on NEW reviews only and" \
+            "proposes: new website FAQ items, new GBP Q&A, and new keywords -" \
+            "for your approval before anything changes.")
+
+          jq -n \
+            --arg from "Joy Junk Removal <leads@send.joyjunkremoval.com>" \
+            --arg to "hello@joyjunkremoval.com" \
+            --arg subject "Monthly Scorecard - $MONTH" \
+            --arg text "$TEXT" \
+            '{from: $from, to: [$to], reply_to: $to, subject: $subject, text: $text}' > email.json
+
+          code=$(curl -s -o resend.json -w "%{http_code}" -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @email.json)
+          if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+            echo "::error::Resend returned HTTP $code"
+            cat resend.json
+            exit 1
+          fi
+          echo "Scorecard emailed to hello@joyjunkremoval.com"

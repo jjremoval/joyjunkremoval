@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-09: Add Monthly Scorecard workflow (auto lead count via Resend); retire checklist email
 - 2026-07-09: Add lead-form Worker health test to weekly SEO Monitor
 - 2026-07-09: Add monthly SEO Radar workflow (Claude API web search -> Resend email)
 - 2026-07-09: Fix reminder-email footer: checklist lives in joyjunk-ops repo, not Drive
