@@ -43,6 +43,21 @@ jobs:
           fi
           echo "All pages healthy ✅"
 
+      - name: Lead-form Worker health test
+        if: success()
+        run: |
+          # The money path: pages being up doesn't prove the contact form works.
+          # An empty POST must be REJECTED with HTTP 400 — that proves the Worker
+          # is alive and validating, WITHOUT sending a real lead email to hello@.
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+            -X POST "https://joyjunk-form.quiet-firefly-7116.workers.dev" \
+            -H "Content-Type: application/json" -d '{}')
+          if [ "$code" != "400" ]; then
+            echo "::error::Lead-form Worker UNHEALTHY (expected 400 on empty POST, got $code) — leads may be silently failing!"
+            exit 1
+          fi
+          echo "Lead-form Worker healthy (rejects invalid input with 400) ✅"
+
       - name: Re-ping IndexNow (Bing / AI search)
         if: success()
         run: |
