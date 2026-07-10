@@ -1,9 +1,13 @@
 name: Monthly Scorecard
 
 # Monthly marketing scorecard, emailed to hello@ on the 1st. Auto-collects:
-#   - Web leads        via Resend API        (secret: RESEND_API_KEY)
+#   - Web leads        via Resend API         (secret: RESEND_API_KEY)
 #   - Site analytics   via Cloudflare GraphQL (secret: CLOUDFLARE_API_TOKEN)
-#   - Search data      via Google Search Console API (secret: GSC_SERVICE_ACCOUNT_JSON)
+#   - Search data      via GSC API, KEYLESS: GitHub's OIDC identity federates
+#     into Google (Workload Identity Federation) and impersonates the
+#     scorecard-reader service account — no key file exists anywhere.
+#     Config lives in repo VARIABLES (non-secret): GCP_WIF_PROVIDER,
+#     GSC_SERVICE_ACCOUNT.
 # Remaining blanks (human-only): GBP calls/clicks, review count.
 # Each source degrades gracefully — a missing/broken credential shows as a
 # note in the email instead of failing the run.
@@ -27,6 +31,9 @@ env:
 jobs:
   scorecard:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # keyless Google auth (Workload Identity Federation)
     steps:
       - name: Count web leads via Resend API
         env:
@@ -95,48 +102,53 @@ jobs:
             cat cf.json || true
           fi
 
+      - name: Google auth (keyless, Workload Identity Federation)
+        id: gauth
+        if: vars.GCP_WIF_PROVIDER != ''
+        continue-on-error: true
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GSC_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/webmasters.readonly
+
       - name: Fetch search data via Google Search Console API
         env:
-          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GAUTH_OUTCOME: ${{ steps.gauth.outcome }}
+          GSC_TOKEN: ${{ steps.gauth.outputs.access_token }}
+          WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
         run: |
-          if [ -z "$GSC_SERVICE_ACCOUNT_JSON" ]; then
-            echo "GSC_LINE=- Google Search (GSC): not configured yet (add GSC_SERVICE_ACCOUNT_JSON secret)" >> "$GITHUB_ENV"
-            echo "::notice::GSC_SERVICE_ACCOUNT_JSON not set — skipping"
+          if [ -z "$WIF_PROVIDER" ]; then
+            echo "GSC_LINE=- Google Search (GSC): not configured yet (set GCP_WIF_PROVIDER repo variable)" >> "$GITHUB_ENV"
+            echo "::notice::GCP_WIF_PROVIDER not set — skipping"
             exit 0
           fi
-          pip install --quiet google-auth requests
-          python3 - <<'PY' || echo "GSC_LINE=- Google Search (GSC): fetch failed - see run log" >> "$GITHUB_ENV"
-          import json, os, datetime, requests
-          from google.oauth2 import service_account
-          from google.auth.transport.requests import Request
-
-          info = json.loads(os.environ["GSC_SERVICE_ACCOUNT_JSON"])
-          creds = service_account.Credentials.from_service_account_info(
-              info, scopes=["https://www.googleapis.com/auth/webmasters.readonly"])
-          creds.refresh(Request())
-
+          if [ "$GAUTH_OUTCOME" != "success" ] || [ -z "$GSC_TOKEN" ]; then
+            echo "GSC_LINE=- Google Search (GSC): auth failed - check WIF setup / grant access" >> "$GITHUB_ENV"
+            echo "::warning::Google WIF auth did not succeed (outcome: $GAUTH_OUTCOME)"
+            exit 0
+          fi
           # GSC data lags ~2-3 days; use a 28-day window ending 3 days ago
-          end = datetime.date.today() - datetime.timedelta(days=3)
-          start = end - datetime.timedelta(days=27)
-          site = os.environ["GSC_SITE"].replace(":", "%3A")
-          r = requests.post(
-              f"https://www.googleapis.com/webmasters/v3/sites/{site}/searchAnalytics/query",
-              headers={"Authorization": f"Bearer {creds.token}"},
-              json={"startDate": str(start), "endDate": str(end)},
-              timeout=60)
-          r.raise_for_status()
-          rows = r.json().get("rows", [])
-          if rows:
-              row = rows[0]
-              line = (f"- Google Search (GSC, 28 days to {end}): "
-                      f"{int(row['impressions'])} impressions / {int(row['clicks'])} clicks / "
-                      f"avg position {row['position']:.1f}")
-          else:
-              line = f"- Google Search (GSC, 28 days to {end}): no data returned"
-          with open(os.environ["GITHUB_ENV"], "a") as f:
-              f.write(f"GSC_LINE={line}\n")
-          print(line)
-          PY
+          END=$(date -u -d "3 days ago" +"%Y-%m-%d")
+          START=$(date -u -d "30 days ago" +"%Y-%m-%d")
+          SITE=$(printf '%s' "$GSC_SITE" | sed 's/:/%3A/')
+          code=$(curl -s -o gsc.json -w "%{http_code}" --max-time 60 -X POST \
+            "https://www.googleapis.com/webmasters/v3/sites/$SITE/searchAnalytics/query" \
+            -H "Authorization: Bearer $GSC_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"startDate\": \"$START\", \"endDate\": \"$END\"}")
+          if [ "$code" != "200" ]; then
+            echo "GSC_LINE=- Google Search (GSC): fetch failed (HTTP $code) - is scorecard-reader added as a Search Console user?" >> "$GITHUB_ENV"
+            echo "::warning::GSC query returned $code:"
+            cat gsc.json
+            exit 0
+          fi
+          IMP=$(jq -r '.rows[0].impressions // 0 | floor' gsc.json)
+          CLK=$(jq -r '.rows[0].clicks // 0 | floor' gsc.json)
+          POS=$(jq -r '.rows[0].position // 0 | (. * 10 | floor) / 10' gsc.json)
+          echo "GSC_LINE=- Google Search (GSC, 28 days to $END): $IMP impressions / $CLK clicks / avg position $POS" >> "$GITHUB_ENV"
+          echo "GSC: $IMP impressions, $CLK clicks, position $POS"
 
       - name: Email the scorecard via Resend
         env:
