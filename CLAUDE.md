@@ -57,8 +57,15 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 ## Repo layout (two repos, one working folder)
 
 - **This repo** (`jjremoval/joyjunkremoval`, PUBLIC) — the live site. Root must stay the Pages web root.
-- **`joyjunk-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../joyjunk-ops/docs`, etc.), so every relative path here keeps working.
-- **Working copies live in `~/Projects/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). The Drive folder is for job photos and non-git files only.
+- **`joyjunk-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../ops/docs`, etc.), so every relative path here keeps working.
+- **Local layout — one parent folder so the connection is obvious:**
+  ```
+  ~/Projects/joyjunk/
+  ├── website    ← this repo (jjremoval/joyjunkremoval)
+  ├── ops        ← joyjunk-ops (private docs/tools/worker)
+  └── forecast   ← joyjunk-forecast (private dashboard)
+  ```
+- **Working copies live in `~/Projects/joyjunk/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). Drive is for job photos and non-git files only.
 
 ## Security & privacy (READ — protects the business and customers)
 
@@ -85,15 +92,15 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 ## First-time setup (after cloning)
 
-Clone both repos side by side and link them:
+Clone both repos side by side under one parent and link them:
 ```
-cd ~/Projects
-git clone https://github.com/jjremoval/joyjunkremoval.git joyjunkremoval_website
-git clone https://github.com/thicktreasure365/joyjunk-ops.git joyjunk-ops
-cd joyjunkremoval_website
-ln -s ../joyjunk-ops/docs docs
-ln -s ../joyjunk-ops/tools tools
-ln -s ../joyjunk-ops/cloudflare-worker cloudflare-worker
+mkdir -p ~/Projects/joyjunk && cd ~/Projects/joyjunk
+git clone https://github.com/jjremoval/joyjunkremoval.git website
+git clone https://github.com/thicktreasure365/joyjunk-ops.git ops
+cd website
+ln -s ../ops/docs docs
+ln -s ../ops/tools tools
+ln -s ../ops/cloudflare-worker cloudflare-worker
 git config core.hooksPath .githooks   # run in BOTH repos
 ```
 The hooks give you: auto-updating `CHANGELOG.md` on every commit (this repo) and a `gitleaks` secret scan blocking bad commits (both repos — install gitleaks to `~/.local/bin`).

@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-09: Document grouped local layout: ~/Projects/joyjunk/{website,ops,forecast}
 - 2026-07-09: Scorecard: keyless GSC auth via Workload Identity Federation (org blocks SA keys)
 - 2026-07-09: Scorecard: account-wide Web Analytics aggregate (single-site account, no siteTag needed)
 - 2026-07-09: Scorecard: resolve Web Analytics site_tag at runtime (beacon token != siteTag)
