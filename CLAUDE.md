@@ -57,15 +57,15 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 ## Repo layout (two repos, one working folder)
 
 - **This repo** (`jjremoval/joyjunkremoval`, PUBLIC) — the live site. Root must stay the Pages web root.
-- **`joyjunkremoval-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../website-ops/docs`, etc.), so every relative path here keeps working.
-- **Local layout — one parent folder so the connection is obvious:**
+- **`joyjunkremoval-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../joyjunk_website_ops/docs`, etc.), so every relative path here keeps working.
+- **Local layout — shared `joyjunk_` prefix marks the family; `_website` + `_website_ops` name the pair:**
   ```
-  ~/Projects/joyjunk/
-  ├── website        ← this repo (jjremoval/joyjunkremoval)
-  ├── website-ops    ← joyjunkremoval-ops (private docs/tools/worker — the site's other half)
-  └── forecast       ← joyjunk-forecast (private dashboard, separate product)
+  ~/Projects/
+  ├── joyjunk_website        ← this repo (jjremoval/joyjunkremoval)
+  ├── joyjunk_website_ops    ← joyjunkremoval-ops (private docs/tools/worker — the site's other half)
+  └── joyjunk_forecast       ← joyjunk-forecast (private dashboard, separate product)
   ```
-- **Working copies live in `~/Projects/joyjunk/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). Drive is for job photos and non-git files only.
+- **Working copies live in `~/Projects/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). Drive is for job photos and non-git files only.
 
 ## Security & privacy (READ — protects the business and customers)
 
@@ -92,15 +92,15 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 ## First-time setup (after cloning)
 
-Clone both repos side by side under one parent and link them:
+Clone both repos side by side and link them:
 ```
-mkdir -p ~/Projects/joyjunk && cd ~/Projects/joyjunk
-git clone https://github.com/jjremoval/joyjunkremoval.git website
-git clone https://github.com/thicktreasure365/joyjunkremoval-ops.git website-ops
-cd website
-ln -s ../website-ops/docs docs
-ln -s ../website-ops/tools tools
-ln -s ../website-ops/cloudflare-worker cloudflare-worker
+mkdir -p ~/Projects && cd ~/Projects
+git clone https://github.com/jjremoval/joyjunkremoval.git joyjunk_website
+git clone https://github.com/thicktreasure365/joyjunkremoval-ops.git joyjunk_website_ops
+cd joyjunk_website
+ln -s ../joyjunk_website_ops/docs docs
+ln -s ../joyjunk_website_ops/tools tools
+ln -s ../joyjunk_website_ops/cloudflare-worker cloudflare-worker
 git config core.hooksPath .githooks   # run in BOTH repos
 ```
 The hooks give you: auto-updating `CHANGELOG.md` on every commit (this repo) and a `gitleaks` secret scan blocking bad commits (both repos — install gitleaks to `~/.local/bin`).
