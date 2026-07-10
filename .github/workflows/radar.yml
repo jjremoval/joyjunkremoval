@@ -50,6 +50,8 @@ jobs:
           - Then three sections titled LOCAL SEO & AI SEARCH, GOOGLE BUSINESS PROFILE, and WEBSITE & CONVERSION. In each section: explain the number-1 pick with concrete step-by-step instructions Ron can follow, then list picks 2 and 3 in two-to-three sentences each.
           - Include source URLs inline.
 
+          RANKING EMPHASIS (tie-breakers, not filters - a genuinely category-shifting development always wins regardless): (A) LOCAL SEO - prefer tactics that do NOT require producing new content; the owner has deliberately deferred content marketing for now. (B) GOOGLE BUSINESS PROFILE - when picks rank close, prefer the one that grows CUSTOMER reviews. (C) WEBSITE - prefer changes that increase TEXT MESSAGES and PHONE CALLS over form fills; texting and calling are this business's primary lead channels.
+
           CONTINUITY RULE: below is last month's report (may be empty). If a past recommendation was likely NOT yet implemented and still ranks as the most valuable move in its category, recommend it again marked '(repeat - still top priority)'. Drop past items that appear done or outdated. LAST MONTH'S REPORT: $PREV
 
           Do not change anything - research and report only. Output only the email text."
@@ -75,6 +77,14 @@ jobs:
           fi
 
           jq -r '[.content[] | select(.type=="text") | .text] | join("\n\n")' resp.json > report.txt
+          # Standing footer (fixed text, not model-generated, so it never drifts)
+          printf '%s\n' \
+            "" \
+            "----" \
+            "P.S. The SEO picks deliberately avoid create-new-content tactics per your" \
+            "standing preference. Content marketing (blog posts, more town pages) is on" \
+            "the menu whenever you want it - just tell Claude to update the Radar's" \
+            "emphasis and this report will start including content plays." >> report.txt
           if [ ! -s report.txt ]; then
             echo "::error::Empty report (stop_reason: $(jq -r .stop_reason resp.json))"
             exit 1
