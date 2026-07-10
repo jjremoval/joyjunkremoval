@@ -1,19 +1,28 @@
 name: Monthly Scorecard
 
-# Monthly marketing scorecard: auto-counts web leads via the Resend API, then
-# emails hello@ a pre-structured scorecard with the remaining blanks and
-# instructions for logging it. Replaces the old maintenance-reminders email.
+# Monthly marketing scorecard, emailed to hello@ on the 1st. Auto-collects:
+#   - Web leads        via Resend API        (secret: RESEND_API_KEY)
+#   - Site analytics   via Cloudflare GraphQL (secret: CLOUDFLARE_API_TOKEN)
+#   - Search data      via Google Search Console API (secret: GSC_SERVICE_ACCOUNT_JSON)
+# Remaining blanks (human-only): GBP calls/clicks, review count.
+# Each source degrades gracefully — a missing/broken credential shows as a
+# note in the email instead of failing the run.
 #
-# Phase 1: leads auto-counted; GSC / GBP / Cloudflare / reviews are blanks.
-# Phase 2 (planned): auto-fill Cloudflare (API token) + GSC (service account).
+# Non-secret config (public by design / visible in URLs):
+#   CF_ACCOUNT_TAG - Ron's Cloudflare account id
+#   CF_SITE_TAG    - the Web Analytics beacon token embedded in every page
 #
-# Repo secret required: RESEND_API_KEY (shared with radar.yml).
 # Manual test run: Actions tab -> Monthly Scorecard -> "Run workflow".
 
 on:
   schedule:
     - cron: "45 15 1 * *" # 1st of month, 15:45 UTC (~8:45am Pacific, after the Radar)
   workflow_dispatch: {}
+
+env:
+  CF_ACCOUNT_TAG: "141094855901a0327dc6b86e6807259d"
+  CF_SITE_TAG: "5879f2e74c1949ac8a1ff5fc80c3b0d9"
+  GSC_SITE: "sc-domain:joyjunkremoval.com"
 
 jobs:
   scorecard:
@@ -23,10 +32,6 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
-          # Leads = emails whose subject starts with "New lead:" in the last 30
-          # days. Each lead produces exactly one such email (the customer
-          # confirmation has a different subject). Volume is low, so one page
-          # of 100 covers the window with room to spare.
           CUTOFF=$(date -u -d "30 days ago" +"%Y-%m-%d")
           code=$(curl -s -o emails.json -w "%{http_code}" --max-time 60 \
             "https://api.resend.com/emails?limit=100" \
@@ -35,13 +40,99 @@ jobs:
             LEADS=$(jq --arg cutoff "$CUTOFF" \
               '[.data[] | select((.subject | startswith("New lead:")) and (.created_at >= $cutoff))] | length' \
               emails.json)
-            echo "LEADS=$LEADS" >> "$GITHUB_ENV"
-            echo "Leads in last 30 days: $LEADS"
+            echo "LEADS_LINE=- Web leads, last 30 days (via Resend): $LEADS" >> "$GITHUB_ENV"
+            echo "Leads: $LEADS"
           else
-            # Degrade gracefully — the scorecard still goes out with a blank.
-            echo "LEADS=(count unavailable - Resend API returned $code)" >> "$GITHUB_ENV"
-            echo "::warning::Could not count leads (HTTP $code); sending scorecard anyway"
+            echo "LEADS_LINE=- Web leads: count unavailable (Resend API HTTP $code)" >> "$GITHUB_ENV"
+            echo "::warning::Resend list returned $code"
           fi
+
+      - name: Fetch site analytics via Cloudflare GraphQL
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "CF_LINE=- Site analytics: not configured yet (add CLOUDFLARE_API_TOKEN secret)" >> "$GITHUB_ENV"
+            echo "::notice::CLOUDFLARE_API_TOKEN not set — skipping"
+            exit 0
+          fi
+          START=$(date -u -d "30 days ago" +"%Y-%m-%dT%H:%M:%SZ")
+          END=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          GQL='query($acct: String!, $site: String!, $start: Time!, $end: Time!) {
+            viewer { accounts(filter: {accountTag: $acct}) {
+              total: rumPageloadEventsAdaptiveGroups(
+                filter: {datetime_geq: $start, datetime_lt: $end, siteTag: $site}, limit: 1
+              ) { count sum { visits } }
+              top: rumPageloadEventsAdaptiveGroups(
+                filter: {datetime_geq: $start, datetime_lt: $end, siteTag: $site},
+                orderBy: [count_DESC], limit: 1
+              ) { count dimensions { requestPath } }
+            } }
+          }'
+          QUERY=$(jq -n --arg q "$GQL" \
+                        --arg acct "$CF_ACCOUNT_TAG" --arg site "$CF_SITE_TAG" \
+                        --arg start "$START" --arg end "$END" \
+            '{query: $q, variables: {acct: $acct, site: $site, start: $start, end: $end}}')
+          code=$(curl -s -o cf.json -w "%{http_code}" --max-time 60 \
+            "https://api.cloudflare.com/client/v4/graphql" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$QUERY")
+          ERRS=$(jq -r '.errors // empty | length' cf.json 2>/dev/null || echo "parse")
+          if [ "$code" = "200" ] && { [ -z "$ERRS" ] || [ "$ERRS" = "0" ]; }; then
+            PV=$(jq -r '.data.viewer.accounts[0].total[0].count // 0' cf.json)
+            VISITS=$(jq -r '.data.viewer.accounts[0].total[0].sum.visits // 0' cf.json)
+            TOP=$(jq -r '.data.viewer.accounts[0].top[0].dimensions.requestPath // "n/a"' cf.json)
+            echo "CF_LINE=- Site (Cloudflare, 30 days): $PV page views / $VISITS referred visits / top page: $TOP" >> "$GITHUB_ENV"
+            echo "Cloudflare: $PV views, $VISITS visits, top $TOP"
+          else
+            echo "CF_LINE=- Site analytics: fetch failed (HTTP $code) - check CLOUDFLARE_API_TOKEN" >> "$GITHUB_ENV"
+            echo "::warning::Cloudflare GraphQL failed (HTTP $code):"
+            cat cf.json || true
+          fi
+
+      - name: Fetch search data via Google Search Console API
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$GSC_SERVICE_ACCOUNT_JSON" ]; then
+            echo "GSC_LINE=- Google Search (GSC): not configured yet (add GSC_SERVICE_ACCOUNT_JSON secret)" >> "$GITHUB_ENV"
+            echo "::notice::GSC_SERVICE_ACCOUNT_JSON not set — skipping"
+            exit 0
+          fi
+          pip install --quiet google-auth requests
+          python3 - <<'PY' || echo "GSC_LINE=- Google Search (GSC): fetch failed - see run log" >> "$GITHUB_ENV"
+          import json, os, datetime, requests
+          from google.oauth2 import service_account
+          from google.auth.transport.requests import Request
+
+          info = json.loads(os.environ["GSC_SERVICE_ACCOUNT_JSON"])
+          creds = service_account.Credentials.from_service_account_info(
+              info, scopes=["https://www.googleapis.com/auth/webmasters.readonly"])
+          creds.refresh(Request())
+
+          # GSC data lags ~2-3 days; use a 28-day window ending 3 days ago
+          end = datetime.date.today() - datetime.timedelta(days=3)
+          start = end - datetime.timedelta(days=27)
+          site = os.environ["GSC_SITE"].replace(":", "%3A")
+          r = requests.post(
+              f"https://www.googleapis.com/webmasters/v3/sites/{site}/searchAnalytics/query",
+              headers={"Authorization": f"Bearer {creds.token}"},
+              json={"startDate": str(start), "endDate": str(end)},
+              timeout=60)
+          r.raise_for_status()
+          rows = r.json().get("rows", [])
+          if rows:
+              row = rows[0]
+              line = (f"- Google Search (GSC, 28 days to {end}): "
+                      f"{int(row['impressions'])} impressions / {int(row['clicks'])} clicks / "
+                      f"avg position {row['position']:.1f}")
+          else:
+              line = f"- Google Search (GSC, 28 days to {end}): no data returned"
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write(f"GSC_LINE={line}\n")
+          print(line)
+          PY
 
       - name: Email the scorecard via Resend
         env:
@@ -52,21 +143,16 @@ jobs:
             "JOY JUNK REMOVAL - MONTHLY SCORECARD ($MONTH)" \
             "" \
             "AUTO-COLLECTED:" \
-            "- Web leads, last 30 days (counted via Resend): $LEADS" \
+            "${LEADS_LINE:-- Web leads: unavailable}" \
+            "${CF_LINE:-- Site analytics: unavailable}" \
+            "${GSC_LINE:-- Google Search: unavailable}" \
             "" \
-            "FILL IN (about 3 minutes, all logins are hello@):" \
+            "FILL IN (about 1 minute, hello@ logins):" \
             "" \
-            "1. Google Search Console - search.google.com/search-console" \
-            "   Performance, last 28 days:" \
-            "   impressions ___ / clicks ___ / avg position ___" \
-            "" \
-            "2. Google Business Profile - business.google.com -> Performance:" \
+            "1. Google Business Profile - business.google.com -> Performance:" \
             "   calls ___ / website clicks ___" \
             "" \
-            "3. Cloudflare - dash.cloudflare.com -> Analytics -> Web Analytics," \
-            "   last 30 days: page views ___" \
-            "" \
-            "4. Google reviews - google 'Joy Junk Removal':" \
+            "2. Google reviews - google 'Joy Junk Removal':" \
             "   total ___ (note how many are real customers vs friends)" \
             "" \
             "THEN LOG IT: open a Claude session on the project and say:" \
