@@ -56,38 +56,27 @@ jobs:
             echo "::notice::CLOUDFLARE_API_TOKEN not set — skipping"
             exit 0
           fi
-          # The beacon token in the page HTML is NOT the GraphQL siteTag —
-          # resolve the real site_tag from the account's Web Analytics site list.
-          curl -s --max-time 60 \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_TAG/rum/site_info/list" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > sites.json
-          SITE_TAG=$(jq -r --arg tok "$CF_SITE_TAG" \
-            '.result[]? | select(.snippet? // "" | contains($tok)) | .site_tag' sites.json | head -1)
-          [ -z "$SITE_TAG" ] && SITE_TAG=$(jq -r '.result[0].site_tag // empty' sites.json)
-          if [ -z "$SITE_TAG" ]; then
-            echo "::warning::Could not resolve Web Analytics site_tag; falling back to beacon token"
-            cat sites.json
-            SITE_TAG="$CF_SITE_TAG"
-          fi
-          echo "Resolved site_tag: $SITE_TAG"
-          CF_SITE_TAG="$SITE_TAG"
+          # Note: no siteTag filter — the beacon token in the HTML is not the
+          # GraphQL siteTag, and listing sites needs an extra token permission.
+          # This account has exactly ONE Web Analytics site, so an account-wide
+          # aggregate is identical. Add a siteTag filter if more sites appear.
           START=$(date -u -d "30 days ago" +"%Y-%m-%dT%H:%M:%SZ")
           END=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          GQL='query($acct: String!, $site: String!, $start: Time!, $end: Time!) {
+          GQL='query($acct: String!, $start: Time!, $end: Time!) {
             viewer { accounts(filter: {accountTag: $acct}) {
               total: rumPageloadEventsAdaptiveGroups(
-                filter: {datetime_geq: $start, datetime_lt: $end, siteTag: $site}, limit: 1
+                filter: {datetime_geq: $start, datetime_lt: $end}, limit: 1
               ) { count sum { visits } }
               top: rumPageloadEventsAdaptiveGroups(
-                filter: {datetime_geq: $start, datetime_lt: $end, siteTag: $site},
+                filter: {datetime_geq: $start, datetime_lt: $end},
                 orderBy: [count_DESC], limit: 1
               ) { count dimensions { requestPath } }
             } }
           }'
           QUERY=$(jq -n --arg q "$GQL" \
-                        --arg acct "$CF_ACCOUNT_TAG" --arg site "$CF_SITE_TAG" \
+                        --arg acct "$CF_ACCOUNT_TAG" \
                         --arg start "$START" --arg end "$END" \
-            '{query: $q, variables: {acct: $acct, site: $site, start: $start, end: $end}}')
+            '{query: $q, variables: {acct: $acct, start: $start, end: $end}}')
           code=$(curl -s -o cf.json -w "%{http_code}" --max-time 60 \
             "https://api.cloudflare.com/client/v4/graphql" \
             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
