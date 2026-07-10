@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-09: Scorecard: resolve Web Analytics site_tag at runtime (beacon token != siteTag)
 - 2026-07-09: Scorecard Phase 2: auto-fill Cloudflare analytics + GSC search data (graceful until secrets added)
 - 2026-07-09: Add Monthly Scorecard workflow (auto lead count via Resend); retire checklist email
 - 2026-07-09: Add lead-form Worker health test to weekly SEO Monitor
