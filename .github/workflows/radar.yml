@@ -7,6 +7,7 @@ name: SEO Radar
 #
 # Repo secrets required (Settings > Secrets and variables > Actions):
 #   ANTHROPIC_API_KEY  - Claude API key (currently Mike's; swap value to Ron's later)
+#                        Cost: ~$0.25-0.35/run on Sonnet with 5 searches (~$4/yr)
 #   RESEND_API_KEY     - same key the maintenance-reminders workflow uses
 #
 # Manual test run: Actions tab -> SEO Radar -> "Run workflow".
@@ -57,10 +58,10 @@ jobs:
           Do not change anything - research and report only. Output only the email text."
 
           jq -n --arg prompt "$PROMPT" '{
-            model: "claude-opus-4-8",
-            max_tokens: 16000,
+            model: "claude-sonnet-5",
+            max_tokens: 12000,
             thinking: {type: "adaptive"},
-            tools: [{type: "web_search_20260209", name: "web_search", max_uses: 8}],
+            tools: [{type: "web_search_20260209", name: "web_search", max_uses: 5}],
             messages: [{role: "user", content: $prompt}]
           }' > req.json
 
