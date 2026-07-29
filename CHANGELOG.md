@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-07-29: CLAUDE.md: repo layout is the two website repos only
 - 2026-07-29: CLAUDE.md: handoff complete - ops repo URL updated, no developer on retainer
 - 2026-07-29: Radar: make it opt-in - skips silently with no API key instead of failing monthly
 - 2026-07-10: Radar: Sonnet + 5 searches - cuts cost ~70% to ~$0.30/run after credit burn

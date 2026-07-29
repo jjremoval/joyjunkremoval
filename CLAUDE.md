@@ -4,7 +4,8 @@ Business website for Joy Junk Removal at joyjunkremoval.com.
 Hosted on GitHub Pages (jjremoval/joyjunkremoval — **public repo**), auto-deploys on push to main.
 Owner: Ron (`hello@joyjunkremoval.com`) — owns every account and both repos. Handed over in full
 July 2026; **no developer is on retainer**, so this file is the briefing for whoever picks it up
-next. Account map, recovery paths, and how to make changes: `docs/40_Account_Handoff.md`.
+next — assume the reader knows nothing about this project. Account map, recovery paths, and how to
+make changes: `docs/40_Account_Handoff.md`.
 
 ## File structure
 
@@ -60,12 +61,11 @@ This project's source of truth is **this folder**, not Claude's memory. On start
 
 - **This repo** (`jjremoval/joyjunkremoval`, PUBLIC) — the live site. Root must stay the Pages web root.
 - **`joyjunkremoval-ops`** (PRIVATE) — `docs/`, `tools/`, `cloudflare-worker/`, all version-controlled. Cloned as a **sibling folder** and **symlinked** into this one (`docs → ../joyjunk_website_ops/docs`, etc.), so every relative path here keeps working.
-- **Local layout — shared `joyjunk_` prefix marks the family; `_website` + `_website_ops` name the pair:**
+- **Local layout — the project is exactly these two folders, cloned side by side:**
   ```
   ~/Projects/
   ├── joyjunk_website        ← this repo (jjremoval/joyjunkremoval)
-  ├── joyjunk_website_ops    ← joyjunkremoval-ops (private docs/tools/worker — the site's other half)
-  └── joyjunk_forecast       ← joyjunk-forecast (private dashboard, separate product)
+  └── joyjunk_website_ops    ← joyjunkremoval-ops (private docs/tools/worker — the site's other half)
   ```
 - **Working copies live in `~/Projects/`, never inside Google Drive / cloud-sync folders** — sync corrupts git state (strips the executable bit off hooks, creates stale duplicate folders). Drive is for job photos and non-git files only.
 
