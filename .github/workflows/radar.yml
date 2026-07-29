@@ -5,10 +5,13 @@ name: SEO Radar
 # 3-recommendation report to hello@ via Resend. Fully cloud — no computer, no
 # claude.ai account, no clicks.
 #
-# Repo secrets required (Settings > Secrets and variables > Actions):
-#   ANTHROPIC_API_KEY  - Claude API key (currently Mike's; swap value to Ron's later)
-#                        Cost: ~$0.25-0.35/run on Sonnet with 5 searches (~$4/yr)
-#   RESEND_API_KEY     - same key the maintenance-reminders workflow uses
+# Repo secrets (Settings > Secrets and variables > Actions):
+#   ANTHROPIC_API_KEY  - OPTIONAL. This is the only automation that costs money,
+#                        so it is opt-in: with no key set, the workflow skips
+#                        silently each month. Add a key to switch it on.
+#                        Cost: ~$0.25-0.35/run on Sonnet with 5 searches (~$4/yr).
+#                        How to switch it on: docs/40_Account_Handoff.md
+#   RESEND_API_KEY     - required (shared with the monitor + scorecard workflows)
 #
 # Manual test run: Actions tab -> SEO Radar -> "Run workflow".
 
@@ -21,7 +24,26 @@ jobs:
   radar:
     runs-on: ubuntu-latest
     steps:
+      - name: Is the Radar switched on?
+        id: check
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # The Radar is the ONE automation that costs money, so it is opt-in:
+          # it runs only if an ANTHROPIC_API_KEY secret exists. With no key it
+          # skips silently (no error, no alert email) instead of failing every
+          # month at an owner who may not have set it up yet. To switch it on,
+          # see docs/40_Account_Handoff.md -> "Turning the SEO Radar back on".
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SEO Radar is OFF - no ANTHROPIC_API_KEY secret set. Skipping (this is not an error)."
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "SEO Radar is ON - running this month's research."
+          fi
+
       - name: Research via Claude API (web search)
+        if: steps.check.outputs.enabled == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -93,6 +115,7 @@ jobs:
           echo "Report generated: $(wc -c < report.txt | tr -d ' ') bytes, $(jq -r '.usage.output_tokens' resp.json) output tokens"
 
       - name: Email the report via Resend
+        if: steps.check.outputs.enabled == 'true'
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
