@@ -2,7 +2,9 @@
 
 Business website for Joy Junk Removal at joyjunkremoval.com.
 Hosted on GitHub Pages (jjremoval/joyjunkremoval — **public repo**), auto-deploys on push to main.
-Owner: Ron (`hello@joyjunkremoval.com`). Account map & recovery: `docs/40_Account_Handoff.md`.
+Owner: Ron (`hello@joyjunkremoval.com`) — owns every account and both repos. Handed over in full
+July 2026; **no developer is on retainer**, so this file is the briefing for whoever picks it up
+next. Account map, recovery paths, and how to make changes: `docs/40_Account_Handoff.md`.
 
 ## File structure
 
@@ -96,7 +98,7 @@ Clone both repos side by side and link them:
 ```
 mkdir -p ~/Projects && cd ~/Projects
 git clone https://github.com/jjremoval/joyjunkremoval.git joyjunk_website
-git clone https://github.com/thicktreasure365/joyjunkremoval-ops.git joyjunk_website_ops
+git clone https://github.com/jjremoval/joyjunkremoval-ops.git joyjunk_website_ops
 cd joyjunk_website
 ln -s ../joyjunk_website_ops/docs docs
 ln -s ../joyjunk_website_ops/tools tools
