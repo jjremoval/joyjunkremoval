@@ -3,6 +3,7 @@
 All major changes to the Joy Junk Removal website are documented here.
 
 ## [Unreleased]
+- 2026-08-02: Scorecard email: say exactly where to find each number the owner fills in
 - 2026-08-02: Scorecard email: show the log command filled in, so it is obvious which numbers
 - 2026-08-02: Scorecard email: describe all five monthly-maintenance jobs, not just the scraper
 - 2026-08-02: Scorecard email: point at the repo's new owner after transfer
