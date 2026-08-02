@@ -214,7 +214,7 @@ jobs:
             echo ""
             echo "----"
             echo "Full history + month-over-month analysis lives in the private repo:"
-            echo "github.com/thicktreasure365/joyjunkremoval-ops -> docs/12_Marketing_Performance_Log.md"
+            echo "github.com/jjremoval/joyjunkremoval-ops -> docs/12_Marketing_Performance_Log.md"
           } > body.txt
 
           jq -n \
